@@ -12,6 +12,7 @@ A proposed lightweight smart dumbbell for CCCARE participants who can independen
 
 ## Start here
 
+- **[Team repository guide / 团队使用说明](docs/team-guide.md)**
 - [Working specification](docs/specification.md) and [Chinese version](docs/specification-zh.md)
 - [Specification PDF snapshot](docs/exports/Smart_Dumbbell_Preliminary_Specification_v01.pdf)
 - [Decisions and open questions](docs/decisions.md)
@@ -73,6 +74,8 @@ Counting, sensing, and the display are intended to continue when the computer di
 - [ ] Revise and test the enclosure before fabrication.
 
 ## Collaboration
+
+Follow the [team guide](docs/team-guide.md) and [contribution workflow](CONTRIBUTING.md). Task, PR and test-record templates are included. These are workflow conventions, not automatically enforced branch-protection rules.
 
 Use short branches such as `docs/hardware-check`, `firmware/sensor-readout`, and `ml/data-protocol`. Open a pull request for changes, explain what changed and what evidence supports it, and ask a teammate to review before merging. Keep requirements, hardware choices, CAD notes and presentation claims consistent.
 
