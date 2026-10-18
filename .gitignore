@@ -1,0 +1,44 @@
+# OS and editor files
+.DS_Store
+.AppleDouble/
+.vscode/
+.idea/
+*.swp
+~$*
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+secrets*.json
+
+# CAD and Office working files
+*.bak
+*.dwl
+*.dwl2
+*.sv$
+*.ac$
+*.tmp
+
+# Runtime and build artifacts
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pio/
+build/
+dist/
+.cache/
+.codex-finalizer/
+.template-build/
+
+# Local training recordings and logs
+data/raw/
+data/private/
+data/session_logs/
+logs/
+ml/checkpoints/

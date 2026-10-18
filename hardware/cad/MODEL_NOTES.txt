@@ -1,0 +1,57 @@
+SMART DUMBBELL - CONCEPT MODEL v0.1
+Units: millimetres
+
+MAIN FILE
+Smart_Dumbbell_Concept_v01.dwg
+Native AutoCAD 3D solids, saved by the AutoCAD 2027 Core Engine.
+The drawing contains an assembled layout near Y=0 and an exploded layout near Y=220.
+32 native solids total: 16 parts/envelopes per layout.
+
+CONCEPT DIMENSIONS
+Shell envelope: 280 length x 100 width x 86.603 height.
+Buttons and sensor protrusions are outside the shell-envelope dimensions.
+Hex head circumradius: 50; across flats: 86.603.
+Head depth including cap: 70 each.
+Head wall and end cap thickness: 3.
+Grip: 140 exposed length, 146 full length, outer diameter 34, inner diameter 24.
+Grip insertion opening: diameter 34.4, provisional clearance only.
+End caps: four diameter-3.4 clearance holes each.
+Shell bosses: diameter 10 with diameter-2.6 pilot holes; fastening details unvalidated.
+
+LAYER LEGEND
+01_GRIP: hollow grip with sensor opening.
+02_HEAD_SHELLS: hollow hexagonal enclosures with end-cap bosses.
+03_END_CAPS: removable end plates, right plate includes a USB opening.
+04_BATTERY_ENVELOPE: orange 50 x 38 x 24 power-supply placeholder.
+05_MCU_ENVELOPE: green 45 x 18 x 2 PCB placeholder.
+06_ELECTRONIC_DETAILS: chip and USB extension placeholders.
+07_OLED_BOARD: green 36 x 30 x 2 placeholder.
+08_DISPLAY_GLASS: blue display placeholder.
+09_SENSOR_ENVELOPE: red 20 x 12 x 6 optical-sensor placeholder.
+10_ACCELEROMETER: yellow 25 x 20 x 4 placeholder.
+11_BUTTONS: three buttons.
+12_LABELS: explanatory text.
+X_ prefixed layers contain the exploded copies.
+Turn off X_* and 12_LABELS to inspect the assembled model by itself.
+
+EDITING AND REBUILDING
+Parts are separate editable solids, not a single fused mesh.
+smart_dumbbell_v01.lsp is the editable source. Load it and run SD_BUILD in a new empty drawing.
+The builder refuses to run when the drawing already contains entities.
+Save regenerated models under a new filename to preserve reviewed versions.
+
+VERIFICATION
+The saved file was reopened in AutoCAD 2027 and visually inspected.
+AutoCAD AUDIT: Total errors found 0, fixed 0.
+Shell bounding boxes were verified for both assembled and exploded layouts.
+
+LIMITATIONS / NEXT DESIGN INPUTS
+This is a packaging and presentation study, not a validated print-ready design.
+All component envelopes are provisional. Measure the actual loan modules, display,
+connectors, chosen power bank and their cables before freezing enclosure dimensions.
+USB location assumes an internal extension; no cable routing assembly is provided.
+No battery charging electronics, custom battery pack or electrical wiring is designed.
+Grip retention, PCB brackets, power-bank retention, optical contact/shielding,
+strain relief, edge finishing, print tolerances and structural loading need development.
+No added exercise ballast is included. Do not infer a 1 kg product mass from this model.
+Heart-rate measurement during movement remains a separate unverified requirement.
