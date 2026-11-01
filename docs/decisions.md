@@ -27,13 +27,21 @@ The AI rendering illustrates appearance and is not a dimensional reference. Use 
 - What exact power module and OLED / GY-MAX30102 board revisions will be used? Check the MAX30102 board for 1.8 V I2C pull-ups before wiring.
 - Should FR-07 / AT-04 / AT-05 keep the strict during-movement heart-rate targets (coverage >= 90%, MAE <= 10 bpm during curls), or be relaxed before testing to "valid output during movement when signal quality permits, guaranteed output during rest between sets"? Motion and heart rate share the 1-2 Hz band, so the strict target is at high risk. Decide before the test method is frozen.
 - How will the grip, caps, boards and power supply be retained and serviced?
-- Budget: the DigiKey order invoiced CAD 86.00, leaving CAD 14 under the 100 ceiling for power supply and enclosure. Decide between reusing an existing power bank plus a low-cost enclosure, or agreeing a higher ceiling, before any further purchase.
+- Budget: spent CAD 119.55 to date (DigiKey 86.00 + power bank 33.55), over the original CAD 100 ceiling. The team said on 2026-11-01 that raising the ceiling is acceptable; agree and record the new figure before the enclosure purchase.
 - Should users be able to change and persist targets directly on the dumbbell? Currently targets are set from the computer.
 - Should the device store complete offline history for later synchronization? Not included in the current specification.
 
 Record a dated decision, reason, supporting evidence and affected files when any baseline choice changes.
 
 ## Decision log
+
+### 2026-11-01: Power supply selected and purchased
+
+- **Decision:** INIU SnapGo P81 power bank (5000 mAh, built-in USB-C cable, 80 x 38 x 29 mm, 115 g) bought on amazon.ca for CAD 29.69 before tax. It powers the Nano ESP32 through its built-in cable.
+- **Reason:** A bank with a built-in flexible cable keeps mechanical load off the Nano's USB-C socket, unlike banks with a rigid male plug. Available next day. Capacity far exceeds the 30-minute runtime target.
+- **Not yet verified:** low-load auto shut-off behaviour, built-in cable length, and enclosure fit. Checks are listed in `docs/hardware.md`.
+- **Consequence:** total spend CAD 119.55, over the original ceiling. Budget ceiling to be re-agreed.
+- **Affected files:** `docs/hardware.md`, `docs/specification-zh.md`.
 
 ### 2026-10-31 (evening): DigiKey order placed; 9-DoF board kept
 

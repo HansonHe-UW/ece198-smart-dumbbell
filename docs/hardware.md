@@ -21,7 +21,7 @@ Baseline revised 2026-10-31 (see [decisions.md](decisions.md)). The DigiKey Cana
 | Grove buzzer or Grove vibration motor | 1 | Grove Starter Kit Plus loan (optional) | Non-visual cue when a repetition is counted |
 | Grove ADXL335 | 1 | Course loan (optional) | Backup and comparison only; not in the final build |
 | R4 Minima and breadboard | 1 set | Course base kit | Bench development only; not in the final dumbbell |
-| Complete small USB power supply | 1 | Reuse or purchase | Portable power |
+| INIU SnapGo P81 power bank, 5000 mAh, built-in USB-C cable | 1 | Purchased on amazon.ca 2026-11-01, CAD 29.69 before tax | Portable 5 V power via the built-in cable. 80 x 38 x 29 mm, 115 g. The Apple Watch charging pad is unused. |
 | Hollow enclosure and mounts | 1 set | Fabricate | Secure, removable component installation |
 | Computer | 1 | Existing | Training, setup and logging |
 | Reference heart-rate device | 1 for tests | Borrow | Synchronized heart-rate comparison |
@@ -36,9 +36,12 @@ The final dumbbell uses one controller, the Nano ESP32. The course loan list and
 | Ontario HST | 9.89 |
 | DigiKey shipping (FedEx International Priority; the only option offered at guest checkout on 2026-10-31) | 15.00 |
 | DigiKey order total (invoiced) | 86.00 |
-| Remaining under the CAD 100 ceiling | 14.00 |
+| INIU P81 power bank, amazon.ca, 29.69 + 13% HST | 33.55 |
+| Spent to date | 119.55 |
+| Original ceiling | 100 |
+| Over the original ceiling | 19.55 |
 
-The remaining CAD 14 must cover the power supply and the enclosure. The earlier allocations (15 for power, 20 for enclosure) no longer fit. Options, to be decided by the team and recorded in `decisions.md`: reuse an existing USB power bank at no cost and keep enclosure spending at or below 14; or agree a higher ceiling before any further purchase. Do not overspend by default.
+Spending has passed the original CAD 100 ceiling. The team indicated on 2026-11-01 that raising the ceiling is acceptable, but no new figure has been agreed. Enclosure and mounting costs are still to come. Agree and record a new ceiling in `decisions.md` before the next purchase; a figure of about CAD 150 would cover the current spend plus the earlier CAD 20 enclosure allocation with a small margin.
 
 ## Alternatives considered on 2026-10-31
 
@@ -57,7 +60,9 @@ The remaining CAD 14 must cover the power supply and the enclosure. The earlier 
 - Nano ESP32 runs 3.3 V logic. I2C is on A4 (SDA) and A5 (SCL).
 - Expected I2C addresses: OLED 0x3C (verify the kit module), MAX30102 0x57, LSM6DSOX 0x6A (0x6B with the address jumper), LIS3MDL 0x1C (0x1E with the jumper). No conflicts; all can share one bus. The LIS3MDL can be left uninitialized in Version 1 firmware.
 - Many GY-MAX30102 boards tie the I2C pull-ups to the 1.8 V rail. Symptom: the device appears at 0x57 but returns no data. Check the board for a 1.8 V / 3.3 V pull-up selection pad; otherwise add 4.7 kΩ pull-ups to 3.3 V. This is forum-reported, not datasheet-documented, so confirm on the actual borrowed board.
-- Power: Nano ESP32 accepts 5 V on USB-C or 6-21 V on VIN. The placeholder is a small USB power bank; a bare LiPo cell is not part of the baseline.
+- Power: Nano ESP32 accepts 5 V on USB-C or 6-21 V on VIN. The INIU P81 feeds the Nano USB-C port through its built-in cable, so the Nano connector carries no cantilevered mass. A bare LiPo cell is not part of the baseline.
+- Power bank checks on arrival: (1) run the Nano with Wi-Fi AP and OLED for at least 10 minutes to confirm the bank does not switch off on low load; if it does, keep Wi-Fi active or add a dummy load. (2) Measure the built-in cable length; it sets the maximum distance between bank and Nano. (3) The enclosure needs openings for the bank's power button and percentage display, and access to recharge it.
+- Enclosure input for the bank: internal cavity at least 86 x 44 x 35 mm plus room for the cable bend.
 - The CAD placeholder `10_ACCELEROMETER` is 25 x 20 x 4 mm. The Adafruit 4517 board is about 25.4 x 17.8 mm plus the STEMMA QT connectors; measure the real board before revising CAD.
 - The 4209 cable is 150 mm. Mount the IMU near the Nano so one cable reaches without an extension.
 
