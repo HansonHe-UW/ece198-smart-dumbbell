@@ -1,6 +1,6 @@
 # Smart Dumbbell Preliminary Specification v0.1
 
-Status: proposed requirements; no prototype test results. Baseline date: 2026-10-18.
+Status: proposed requirements; no prototype test results. Baseline date: 2026-10-18. Hardware baseline revised 2026-10-31 (IMU changed from ADXL335 to LSM6DSOX).
 
 ## Purpose and constraints
 
@@ -20,7 +20,7 @@ Support CCCARE graduates and participants who can independently perform prescrib
 |---|---|
 | FR-01 | Allow users to set a target repetition count on the computer and synchronize it with the dumbbell. Demonstration default: 10 repetitions. |
 | FR-02 | Provide start, pause/resume, and end controls. Repetitions must not increase while paused. |
-| FR-03 | Continuously acquire three-axis motion data with timing information for training and testing. |
+| FR-03 | Continuously acquire three-axis acceleration and three-axis angular-rate data with timing information for training and testing. |
 | FR-04 | Run motion-model inference on the microcontroller. The computer performs training and logging, not motion classification during normal operation. |
 | FR-05 | Increment the count only when a complete movement cycle is detected within motion classified as a curl. Count each cycle once. |
 | FR-06 | Avoid counting stationary periods, picking up or putting down the dumbbell, and unrelated movements as valid curls. |
@@ -39,7 +39,7 @@ A complete repetition starts at a calibrated lower position, reaches the defined
 Use the [hardware baseline and budget](hardware.md). Confirm the actual module versions, supply and logic voltages before wiring. Datasheets for bare chips do not establish breakout-board compatibility.
 
 - Two removable hollow end housings joined by a handle, with USB, switch and maintenance access.
-- Rigid accelerometer mounting with documented axis orientation.
+- Rigid IMU mounting with documented axis orientation.
 - Grip optical window with stable skin contact and light shielding.
 - Secure internal components and adjust balance using measured masses.
 - No added training ballast in Version 1; target total prototype mass no more than 1 kg.
@@ -60,7 +60,7 @@ The Nano creates a local Wi-Fi access point. The computer uses HTTP to configure
 | `heart_rate_bpm`, `heart_rate_valid` | BPM estimate; value is null when invalid |
 | `signal_quality`, `connection_state` | Measurement and connection status |
 
-Target regular state and heart-rate output at 1 Hz. An estimate may use a rolling window. The development mode also records raw acceleration and optical signals.
+Target regular state and heart-rate output at 1 Hz. An estimate may use a rolling window. The development mode also records raw acceleration, angular rate and optical signals.
 
 On disconnection, keep local functions running and mark a gap in the computer record. On reconnection, retrieve the cumulative count without inventing missing heart-rate history. Mark a power-interrupted session as interrupted; recovery of unsaved data is not required in v0.1. Persistent offline history and later backfill are not promised.
 
@@ -99,6 +99,7 @@ Deliver the prototype, firmware, training scripts/model, computer application, B
 
 - [PDF snapshot](exports/Smart_Dumbbell_Preliminary_Specification_v01.pdf)
 - [Arduino Nano ESP32](https://docs.arduino.cc/hardware/nano-esp32/)
-- [Seeed Grove ADXL335](https://wiki.seeedstudio.com/Grove-3-Axis_Analog_Accelerometer/)
+- [Adafruit LSM6DSOX 6-DoF IMU breakout](https://learn.adafruit.com/lsm6dsox-and-ism330dhc-6-dof-imu)
+- [ST LSM6DSOX datasheet](https://www.st.com/resource/en/datasheet/lsm6dsox.pdf)
 - [MAX30102](https://www.analog.com/en/products/max30102.html)
 - [Optical biosensing error sources](https://www.analog.com/en/resources/design-notes/how-common-noise-and-error-sources-affect-optical-biosensing.html)
