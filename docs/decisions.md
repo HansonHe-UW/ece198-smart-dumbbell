@@ -1,6 +1,6 @@
 # Decisions and unresolved questions
 
-Baseline established in team planning on 2026-10-18. These are design decisions, not validation results.
+Baseline established in team planning on 2026-10-18; hardware baseline revised 2026-10-31. These are design decisions, not validation results.
 
 ## Selected baseline
 
@@ -9,7 +9,7 @@ Baseline established in team planning on 2026-10-18. These are design decisions,
 - Smart dumbbell is the preferred concept; the guided exercise station remains the second pitch concept.
 - Version 1 includes on-device ML, repetition counting, display, Wi-Fi records and heart-rate measurement during movement.
 - One exercise, bicep curl, with `curl`, `idle`, `other` classes.
-- Final controller baseline: Nano ESP32. Motion baseline: ADXL335. Three buttons.
+- Final controller baseline: Arduino Nano ESP32 (ABX00083). Motion baseline: Adafruit LSM6DSOX + LIS3MDL 9-DoF IMU (4517), purchased; only the LSM6DSOX accelerometer and gyroscope are used in Version 1. Heart rate: borrowed GY-MAX30102. Three buttons.
 - Custom hollow enclosure; total purchase ceiling CAD 100 including taxes and shipping.
 - A personal smartwatch is not required. Existing watches may help exploratory comparisons, but are not assumed to be accurate ground truth.
 
@@ -24,10 +24,27 @@ The AI rendering illustrates appearance and is not a dimensional reference. Use 
 ## Open decisions and evidence needed
 
 - Can the grip optical sensor meet the during-movement quality targets? Test against a synchronized reference before freezing the handle.
-- What exact power module and loan-board variants will be used?
+- What exact power module and OLED / GY-MAX30102 board revisions will be used? Check the MAX30102 board for 1.8 V I2C pull-ups before wiring.
+- Should FR-07 / AT-04 / AT-05 keep the strict during-movement heart-rate targets (coverage >= 90%, MAE <= 10 bpm during curls), or be relaxed before testing to "valid output during movement when signal quality permits, guaranteed output during rest between sets"? Motion and heart rate share the 1-2 Hz band, so the strict target is at high risk. Decide before the test method is frozen.
 - How will the grip, caps, boards and power supply be retained and serviced?
-- Can the full build stay within the budget after tax, shipping and reprints?
+- Budget: the DigiKey order invoiced CAD 86.00, leaving CAD 14 under the 100 ceiling for power supply and enclosure. Decide between reusing an existing power bank plus a low-cost enclosure, or agreeing a higher ceiling, before any further purchase.
 - Should users be able to change and persist targets directly on the dumbbell? Currently targets are set from the computer.
 - Should the device store complete offline history for later synchronization? Not included in the current specification.
 
 Record a dated decision, reason, supporting evidence and affected files when any baseline choice changes.
+
+## Decision log
+
+### 2026-10-31 (evening): DigiKey order placed; 9-DoF board kept
+
+- **Decision:** The order (Salesorder 102617982) was placed with Adafruit 4517 (LSM6DSOX + LIS3MDL 9-DoF, CAD 29.63) instead of the recommended 4438, plus two 4209 cables (one spare) and the Nano ESP32. Shipping was FedEx International Priority at CAD 15.00, the only option shown at guest checkout. Total invoiced CAD 86.00. The team chose to keep 4517 rather than change the order; the magnetometer is unused in Version 1 and may be useful later.
+- **Reason:** Changing a submitted DigiKey order is usually not possible and a return would cost more in shipping and time than the CAD 12 difference.
+- **Consequence:** CAD 14 remains under the budget ceiling for power and enclosure. Recorded above as an open decision.
+- **Affected files:** `docs/hardware.md`, `docs/specification-zh.md`, `AGENTS.md`, `Hardware Datasheets/README.md`.
+
+### 2026-10-31: IMU changed from borrowed ADXL335 to purchased LSM6DSOX; controller confirmed
+
+- **Decision:** Buy Arduino Nano ESP32 with headers (DigiKey 1050-ABX00083-ND, CAD 28.66), Adafruit LSM6DSOX 6-DoF IMU (1528-4438-ND, CAD 17.75) and a STEMMA QT to male-header cable (1528-4209-ND, CAD 1.41). Borrow GY-MAX30102, OLED and buttons. ADXL335 becomes an optional backup only.
+- **Reason:** A bicep curl is mainly forearm rotation, so angular rate from a gyroscope gives a cleaner repetition signal than acceleration alone. The course loan list and the Grove Starter Kit Plus contain no gyroscope and no wireless controller, so these two items must be purchased. The 9-DoF version (4517, CAD 29.63) was rejected because the magnetometer does not help curl counting and costs CAD 12 more. R4 Minima plus an external Wi-Fi module was rejected because the R4 3.3 V pin is fed by the RA4M1 internal USB LDO (R4 Minima datasheet section 9.2) and cannot power a Wi-Fi module, its 5 V logic needs level shifting, and 32 kB SRAM is tight for ML plus Wi-Fi buffers.
+- **Evidence:** DigiKey Canada prices and stock on 2026-10-31; Grove Starter Kit Plus wiki parts list; Arduino UNO R4 Minima datasheet. No hardware has been received or tested.
+- **Affected files:** `docs/hardware.md`, `docs/specification.md`, `docs/specification-zh.md`, `README.md`, `AGENTS.md`, `docs/team-guide.md`. Not yet updated: the pitch deck and speaker script (delivered snapshots still name ADXL335), the PDF specification export, and the CAD accelerometer placeholder dimensions.

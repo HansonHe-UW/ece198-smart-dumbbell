@@ -103,7 +103,7 @@ git config user.email "YOUR_GITHUB_NOREPLY_EMAIL"
 | ML and data | 采集协议、标签、训练、独立评估 |
 | Enclosure and computer interface | CAD 固定结构、装配、电脑记录界面 |
 
-一个任务尽量只解决一个明确问题。例如“记录 ADXL335 三轴数据”比“完成整个哑铃代码”更适合作为一个任务。
+一个任务尽量只解决一个明确问题。例如“记录 LSM6DSOX 六轴数据”比“完成整个哑铃代码”更适合作为一个任务。
 
 ## 5. 修改文档的网页流程
 
@@ -213,7 +213,7 @@ git branch -d docs/sensor-research
 示例任务分支：
 
 ```text
-firmware/adxl335-readout
+firmware/lsm6dsox-readout
 firmware/curl-counter
 ml/curl-idle-other
 software/session-logger
@@ -230,7 +230,7 @@ docs/hardware-check
 例如：
 
 ```text
-tests/results/2026-10-20_adxl335_readout.md
+tests/results/2026-10-20_lsm6dsox_readout.md
 ```
 
 只有实际做过并有证据的测试才能写 `Pass`。编译通过、模型离线评估、模拟器通过和真实硬件通过是不同层面的证据。CAD 的 AUDIT 通过也不代表结构强度或装配间隙已经验证。
