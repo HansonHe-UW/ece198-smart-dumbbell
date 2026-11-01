@@ -38,7 +38,7 @@ The main feasibility risk is obtaining reliable optical heart-rate signals while
 ```text
 Development: motion recordings -> labels -> computer training/testing -> deployed model
 
-ADXL335 -> on-device model -> movement-cycle logic -> repetition count
+LSM6DSOX (accel + gyro) -> on-device model -> movement-cycle logic -> repetition count
 MAX30102 -> signal processing / quality checks -> heart rate or invalid status
                                       |
                             OLED + local Wi-Fi
@@ -66,6 +66,7 @@ Counting, sensing, and the display are intended to continue when the computer di
 - [x] Write preliminary requirements and acceptance targets.
 - [x] Create a concept CAD model and appearance render.
 - [x] Prepare a pitch deck and narration.
+- [x] Select the controller and IMU and record prices (2026-10-31).
 - [ ] Confirm loan modules, dimensions, connector clearances, and budget.
 - [ ] Test grip heart-rate feasibility against a synchronized reference.
 - [ ] Build a rule-based counting baseline and collect labelled motion recordings.
