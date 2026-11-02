@@ -13,6 +13,7 @@ A proposed lightweight smart dumbbell for CCCARE participants who can independen
 ## Start here
 
 - **[Team repository guide / 团队使用说明](docs/team-guide.md)**
+- [Handoff brief for teammates and their AI assistants](HANDOFF.md)
 - [Working specification](docs/specification.md) and [Chinese version](docs/specification-zh.md)
 - [Specification PDF snapshot](docs/exports/Smart_Dumbbell_Preliminary_Specification_v01.pdf)
 - [Decisions and open questions](docs/decisions.md)
