@@ -1,0 +1,168 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1260' height='820' viewBox='0 0 1260 820'>
+<rect width='1260' height='820' fill='white'/>
+<text x='20' y='30' font-size='18' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>Smart dumbbell - wiring v1 (draft, 2026-11-02, drawn before parts arrived)</text>
+<text x='20' y='50' font-size='12' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Pin names are Arduino names on the Nano ESP32 header, not ESP32-S3 GPIO numbers. All logic is 3.3 V.</text>
+<rect x='440' y='140' width='200' height='540' rx='6' fill='#e8f0fe' stroke='#333' stroke-width='1.5'/>
+<text x='540.0' y='158' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>Arduino Nano ESP32</text>
+<text x='540.0' y='174' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>ABX00083, 3.3 V logic</text>
+<text x='448' y='184' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>USB-C</text>
+<text x='448' y='264' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D2</text>
+<text x='448' y='304' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D3</text>
+<text x='448' y='344' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D4</text>
+<text x='448' y='414' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D5</text>
+<text x='448' y='484' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D6</text>
+<text x='448' y='554' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D7</text>
+<text x='448' y='614' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>3V3</text>
+<text x='448' y='654' font-size='12' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<text x='632' y='204' font-size='12' text-anchor='end' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>3V3</text>
+<text x='632' y='244' font-size='12' text-anchor='end' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<text x='632' y='304' font-size='12' text-anchor='end' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>A4 / SDA</text>
+<text x='632' y='344' font-size='12' text-anchor='end' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>A5 / SCL</text>
+<text x='632' y='454' font-size='12' text-anchor='end' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D8</text>
+<text x='632' y='494' font-size='12' text-anchor='end' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>D9</text>
+<rect x='130' y='150' width='180' height='60' rx='6' fill='#f5f5f5' stroke='#333' stroke-width='1.5'/>
+<text x='220.0' y='168' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>INIU SnapGo P81</text>
+<text x='220.0' y='184' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>5000 mAh, built-in USB-C cable</text>
+<line x1='310' y1='180' x2='440' y2='180' stroke='#6a1b9a' stroke-width='3'/>
+<text x='375' y='172' font-size='11' text-anchor='middle' font-weight='normal' fill='#6a1b9a' font-family='Helvetica, Arial, sans-serif'>5 V</text>
+<text x='20' y='230' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Power bank feeds the Nano USB-C port only.</text>
+<text x='20' y='244' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Every sensor is powered from the Nano 3V3 pin.</text>
+<line x1='40' y1='260' x2='40' y2='650' stroke='#111111' stroke-width='2.5'/>
+<line x1='70' y1='395' x2='70' y2='610' stroke='#c62828' stroke-width='2.5'/>
+<line x1='440' y1='650' x2='40' y2='650' stroke='#111111' stroke-width='2.5'/>
+<circle cx='40' cy='650' r='4' fill='#111111'/>
+<line x1='440' y1='610' x2='70' y2='610' stroke='#c62828' stroke-width='2.5'/>
+<circle cx='70' cy='610' r='4' fill='#c62828'/>
+<text x='40' y='255' font-size='10' text-anchor='middle' font-weight='bold' fill='#111111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<text x='70' y='390' font-size='10' text-anchor='middle' font-weight='bold' fill='#c62828' font-family='Helvetica, Arial, sans-serif'>3V3</text>
+<line x1='440' y1='260' x2='405' y2='260' stroke='#2e7d32' stroke-width='2'/>
+<circle cx='405' cy='260' r='4' fill='#2e7d32'/>
+<circle cx='365' cy='260' r='4' fill='#2e7d32'/>
+<line x1='405' y1='260' x2='372' y2='247' stroke='#2e7d32' stroke-width='2'/>
+<line x1='365' y1='260' x2='40' y2='260' stroke='#111111' stroke-width='2'/>
+<circle cx='40' cy='260' r='4' fill='#111111'/>
+<text x='355' y='254' font-size='11' text-anchor='end' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SW1  Start</text>
+<line x1='440' y1='300' x2='405' y2='300' stroke='#2e7d32' stroke-width='2'/>
+<circle cx='405' cy='300' r='4' fill='#2e7d32'/>
+<circle cx='365' cy='300' r='4' fill='#2e7d32'/>
+<line x1='405' y1='300' x2='372' y2='287' stroke='#2e7d32' stroke-width='2'/>
+<line x1='365' y1='300' x2='40' y2='300' stroke='#111111' stroke-width='2'/>
+<circle cx='40' cy='300' r='4' fill='#111111'/>
+<text x='355' y='294' font-size='11' text-anchor='end' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SW2  Pause / resume</text>
+<line x1='440' y1='340' x2='405' y2='340' stroke='#2e7d32' stroke-width='2'/>
+<circle cx='405' cy='340' r='4' fill='#2e7d32'/>
+<circle cx='365' cy='340' r='4' fill='#2e7d32'/>
+<line x1='405' y1='340' x2='372' y2='327' stroke='#2e7d32' stroke-width='2'/>
+<line x1='365' y1='340' x2='40' y2='340' stroke='#111111' stroke-width='2'/>
+<circle cx='40' cy='340' r='4' fill='#111111'/>
+<text x='355' y='334' font-size='11' text-anchor='end' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SW3  End</text>
+<text x='170' y='372' font-size='10' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Kit pushbuttons, one side to GND, other side to the pin.</text>
+<text x='170' y='384' font-size='10' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Firmware uses INPUT_PULLUP, so no external resistor.</text>
+<rect x='130' y='388' width='180' height='70' rx='6' fill='#f5f5f5' stroke='#333' stroke-width='1.5'/>
+<text x='220.0' y='406' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>Grove Buzzer</text>
+<text x='220.0' y='422' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Starter Kit loan</text>
+<line x1='310' y1='410' x2='440' y2='410' stroke='#2e7d32' stroke-width='2'/>
+<text x='316' y='405' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SIG</text>
+<line x1='130' y1='426' x2='70' y2='426' stroke='#c62828' stroke-width='2'/>
+<circle cx='70' cy='426' r='4' fill='#c62828'/>
+<text x='126' y='423' font-size='10' text-anchor='end' font-weight='normal' fill='#c62828' font-family='Helvetica, Arial, sans-serif'>VCC</text>
+<line x1='130' y1='442' x2='40' y2='442' stroke='#111111' stroke-width='2'/>
+<circle cx='40' cy='442' r='4' fill='#111111'/>
+<text x='126' y='439' font-size='10' text-anchor='end' font-weight='normal' fill='#111111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<rect x='130' y='458' width='180' height='70' rx='6' fill='#f5f5f5' stroke='#333' stroke-width='1.5'/>
+<text x='220.0' y='476' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>Grove Vibration Motor</text>
+<text x='220.0' y='492' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Starter Kit Plus, optional</text>
+<line x1='310' y1='480' x2='440' y2='480' stroke='#2e7d32' stroke-width='2'/>
+<text x='316' y='475' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SIG</text>
+<line x1='130' y1='496' x2='70' y2='496' stroke='#c62828' stroke-width='2'/>
+<circle cx='70' cy='496' r='4' fill='#c62828'/>
+<text x='126' y='493' font-size='10' text-anchor='end' font-weight='normal' fill='#c62828' font-family='Helvetica, Arial, sans-serif'>VCC</text>
+<line x1='130' y1='512' x2='40' y2='512' stroke='#111111' stroke-width='2'/>
+<circle cx='40' cy='512' r='4' fill='#111111'/>
+<text x='126' y='509' font-size='10' text-anchor='end' font-weight='normal' fill='#111111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<rect x='130' y='528' width='180' height='70' rx='6' fill='#f5f5f5' stroke='#333' stroke-width='1.5'/>
+<text x='220.0' y='546' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>Grove LED</text>
+<text x='220.0' y='562' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Starter Kit loan, or onboard RGB</text>
+<line x1='310' y1='550' x2='440' y2='550' stroke='#2e7d32' stroke-width='2'/>
+<text x='316' y='545' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SIG</text>
+<line x1='130' y1='566' x2='70' y2='566' stroke='#c62828' stroke-width='2'/>
+<circle cx='70' cy='566' r='4' fill='#c62828'/>
+<text x='126' y='563' font-size='10' text-anchor='end' font-weight='normal' fill='#c62828' font-family='Helvetica, Arial, sans-serif'>VCC</text>
+<line x1='130' y1='582' x2='40' y2='582' stroke='#111111' stroke-width='2'/>
+<circle cx='40' cy='582' r='4' fill='#111111'/>
+<text x='126' y='579' font-size='10' text-anchor='end' font-weight='normal' fill='#111111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<text x='20' y='690' font-size='10' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Grove modules: the Nano does not fit the Grove Base Shield. Use Grove-to-jumper cables</text>
+<text x='20' y='702' font-size='10' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>(Seeed 110990210) or cut one Grove cable. Grove NC pin is left open.</text>
+<line x1='720' y1='340' x2='720' y2='660' stroke='#e09b00' stroke-width='2.5'/>
+<line x1='760' y1='300' x2='760' y2='660' stroke='#1565c0' stroke-width='2.5'/>
+<line x1='800' y1='240' x2='800' y2='660' stroke='#111111' stroke-width='2.5'/>
+<line x1='840' y1='200' x2='840' y2='660' stroke='#c62828' stroke-width='2.5'/>
+<line x1='640' y1='200' x2='840' y2='200' stroke='#c62828' stroke-width='2.5'/>
+<circle cx='840' cy='200' r='4' fill='#c62828'/>
+<line x1='640' y1='240' x2='800' y2='240' stroke='#111111' stroke-width='2.5'/>
+<circle cx='800' cy='240' r='4' fill='#111111'/>
+<line x1='640' y1='300' x2='760' y2='300' stroke='#1565c0' stroke-width='2.5'/>
+<circle cx='760' cy='300' r='4' fill='#1565c0'/>
+<line x1='640' y1='340' x2='720' y2='340' stroke='#e09b00' stroke-width='2.5'/>
+<circle cx='720' cy='340' r='4' fill='#e09b00'/>
+<text x='720' y='676' font-size='10' text-anchor='middle' font-weight='bold' fill='#e09b00' font-family='Helvetica, Arial, sans-serif'>SCL</text>
+<text x='760' y='676' font-size='10' text-anchor='middle' font-weight='bold' fill='#1565c0' font-family='Helvetica, Arial, sans-serif'>SDA</text>
+<text x='800' y='676' font-size='10' text-anchor='middle' font-weight='bold' fill='#111111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<text x='840' y='676' font-size='10' text-anchor='middle' font-weight='bold' fill='#c62828' font-family='Helvetica, Arial, sans-serif'>3V3</text>
+<text x='780' y='150' font-size='12' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>One shared I2C bus, 3.3 V, 400 kHz</text>
+<text x='780' y='166' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>0x6A LSM6DSOX   0x1C LIS3MDL   0x57 MAX30102   0x3C OLED</text>
+<rect x='940' y='175' width='280' height='142' rx='6' fill='#f5f5f5' stroke='#333' stroke-width='1.5'/>
+<text x='1080.0' y='193' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>Adafruit 4517  LSM6DSOX + LIS3MDL</text>
+<text x='1080.0' y='209' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>via 4209 STEMMA QT cable (150 mm)</text>
+<line x1='940' y1='227' x2='840' y2='227' stroke='#c62828' stroke-width='2'/>
+<circle cx='840' cy='227' r='4' fill='#c62828'/>
+<text x='946' y='231' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>V+  (red)</text>
+<line x1='940' y1='252' x2='800' y2='252' stroke='#111111' stroke-width='2'/>
+<circle cx='800' cy='252' r='4' fill='#111111'/>
+<text x='946' y='256' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>GND (black)</text>
+<line x1='940' y1='277' x2='760' y2='277' stroke='#1565c0' stroke-width='2'/>
+<circle cx='760' cy='277' r='4' fill='#1565c0'/>
+<text x='946' y='281' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SDA (blue)</text>
+<line x1='940' y1='302' x2='720' y2='302' stroke='#e09b00' stroke-width='2'/>
+<circle cx='720' cy='302' r='4' fill='#e09b00'/>
+<text x='946' y='306' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SCL (yellow)</text>
+<rect x='940' y='335' width='280' height='167' rx='6' fill='#f5f5f5' stroke='#333' stroke-width='1.5'/>
+<text x='1080.0' y='353' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>GY-MAX30102 (course loan)</text>
+<text x='1080.0' y='369' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>check pull-up rail on arrival</text>
+<line x1='940' y1='387' x2='840' y2='387' stroke='#c62828' stroke-width='2'/>
+<circle cx='840' cy='387' r='4' fill='#c62828'/>
+<text x='946' y='391' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>VIN</text>
+<line x1='940' y1='412' x2='800' y2='412' stroke='#111111' stroke-width='2'/>
+<circle cx='800' cy='412' r='4' fill='#111111'/>
+<text x='946' y='416' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<line x1='940' y1='437' x2='760' y2='437' stroke='#1565c0' stroke-width='2'/>
+<circle cx='760' cy='437' r='4' fill='#1565c0'/>
+<text x='946' y='441' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SDA</text>
+<line x1='940' y1='462' x2='720' y2='462' stroke='#e09b00' stroke-width='2'/>
+<circle cx='720' cy='462' r='4' fill='#e09b00'/>
+<text x='946' y='466' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SCL</text>
+<text x='946' y='491' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>INT (optional)</text>
+<line x1='940' y1='487' x2='900' y2='487' stroke='#888' stroke-width='1.5' stroke-dasharray='6,4'/>
+<line x1='900' y1='487' x2='900' y2='450' stroke='#888' stroke-width='1.5' stroke-dasharray='6,4'/>
+<line x1='900' y1='450' x2='640' y2='450' stroke='#888' stroke-width='1.5' stroke-dasharray='6,4'/>
+<rect x='940' y='520' width='280' height='142' rx='6' fill='#f5f5f5' stroke='#333' stroke-width='1.5'/>
+<text x='1080.0' y='538' font-size='13' text-anchor='middle' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>OLED from course base kit</text>
+<text x='1080.0' y='554' font-size='11' text-anchor='middle' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>SSD1306 128x64 expected; pin order TBD</text>
+<line x1='940' y1='572' x2='840' y2='572' stroke='#c62828' stroke-width='2'/>
+<circle cx='840' cy='572' r='4' fill='#c62828'/>
+<text x='946' y='576' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>VCC</text>
+<line x1='940' y1='597' x2='800' y2='597' stroke='#111111' stroke-width='2'/>
+<circle cx='800' cy='597' r='4' fill='#111111'/>
+<text x='946' y='601' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>GND</text>
+<line x1='940' y1='622' x2='720' y2='622' stroke='#e09b00' stroke-width='2'/>
+<circle cx='720' cy='622' r='4' fill='#e09b00'/>
+<text x='946' y='626' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SCL</text>
+<line x1='940' y1='647' x2='760' y2='647' stroke='#1565c0' stroke-width='2'/>
+<circle cx='760' cy='647' r='4' fill='#1565c0'/>
+<text x='946' y='651' font-size='10' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>SDA</text>
+<text x='20' y='730' font-size='11' text-anchor='start' font-weight='bold' fill='#111' font-family='Helvetica, Arial, sans-serif'>Legend: dot = connection. Lines crossing without a dot are not connected. Dashed = optional.</text>
+<text x='20' y='748' font-size='11' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>Pull-ups: the 4517 carries 10 k to 3.3 V on SDA/SCL and the OLED module usually carries its own. The GY-MAX30102 often ties 4.7 k to its 1.8 V rail,</text>
+<text x='20' y='762' font-size='11' text-anchor='start' font-weight='normal' fill='#111' font-family='Helvetica, Arial, sans-serif'>which drags the bus high level to roughly 2.7 V. Measure SDA/SCL high level after assembly; if below 2.5 V, move the MAX30102 pull-ups to 3.3 V or remove them.</text>
+<text x='20' y='780' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>Not drawn: the course R4 Minima and breadboard (bench only), the ADXL335 backup, the Dragino Yun Shield (not used).</text>
+<text x='20' y='798' font-size='11' text-anchor='start' font-weight='normal' fill='#555' font-family='Helvetica, Arial, sans-serif'>D9 is reserved for LSM6DSOX INT1 and is not wired in v1. Pin assignment is a proposal. Record the final assignment in firmware/ once the first integration sketch runs.</text>
+</svg>

@@ -20,6 +20,7 @@ A proposed lightweight smart dumbbell for CCCARE participants who can independen
 - [Research assignments](docs/research-plan.md)
 - [Pitch deck](presentation/Smart_Dumbbell_Pitch_Waterloo_v02.pptx), [speaker script](presentation/speaker_script.txt), and [editable script](presentation/Smart_Dumbbell_Speaker_Script_v02.docx)
 - [CAD model](hardware/cad/Smart_Dumbbell_Concept_v01.dwg) and [model notes](hardware/cad/MODEL_NOTES.txt)
+- [Wiring diagram and net list, v1 draft](hardware/wiring/README.md)
 
 ## Version 1 scope
 
@@ -53,7 +54,7 @@ Counting, sensing, and the display are intended to continue when the computer di
 | Directory | Contents |
 |---|---|
 | `docs/` | Specification, research plan, decisions, and exported snapshot |
-| `hardware/` | Native CAD, model generator, rendering and assumptions |
+| `hardware/` | Native CAD, model generator, rendering, assumptions, and the wiring draft |
 | `presentation/` | Current pitch and matching narration |
 | `firmware/` | Planned Nano ESP32 implementation; no code yet |
 | `software/` | Planned computer interface and logging; no code yet |

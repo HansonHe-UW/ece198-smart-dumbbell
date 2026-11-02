@@ -58,6 +58,7 @@ Spending has passed the original CAD 100 ceiling. The team indicated on 2026-11-
 ## Interface notes
 
 - Nano ESP32 runs 3.3 V logic. I2C is on A4 (SDA) and A5 (SCL).
+- Draft wiring diagram and net list: [hardware/wiring/README.md](../hardware/wiring/README.md) (drawn 2026-11-02 before parts arrived; pin assignment is a proposal).
 - Expected I2C addresses: OLED 0x3C (verify the kit module), MAX30102 0x57, LSM6DSOX 0x6A (0x6B with the address jumper), LIS3MDL 0x1C (0x1E with the jumper). No conflicts; all can share one bus. The LIS3MDL can be left uninitialized in Version 1 firmware.
 - Many GY-MAX30102 boards tie the I2C pull-ups to the 1.8 V rail. Symptom: the device appears at 0x57 but returns no data. Check the board for a 1.8 V / 3.3 V pull-up selection pad; otherwise add 4.7 kΩ pull-ups to 3.3 V. This is forum-reported, not datasheet-documented, so confirm on the actual borrowed board.
 - Power: Nano ESP32 accepts 5 V on USB-C or 6-21 V on VIN. The INIU P81 feeds the Nano USB-C port through its built-in cable, so the Nano connector carries no cantilevered mass. A bare LiPo cell is not part of the baseline.
