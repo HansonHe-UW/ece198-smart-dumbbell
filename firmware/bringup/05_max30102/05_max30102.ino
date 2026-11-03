@@ -1,7 +1,7 @@
 // 05_max30102: raw red/IR stream from the borrowed GY-MAX30102 plus a simple beat detector.
 // Library (Library Manager): "SparkFun MAX3010x Pulse and Proximity Sensor Library".
 // Bus: same I2C as the IMU (A4 SDA, A5 SCL). Module VIN -> 3V3, GND -> GND. Address 0x57.
-// Output CSV at about 25 Hz: t_ms,ir,red,finger,beat,bpm_inst,bpm_avg
+// Output CSV at about 100 Hz: t_ms,ir,red,finger,beat,bpm_inst,bpm_avg
 // Pass: with no finger ir is small (< 20000); with a finger resting on the window ir jumps
 // above 50000 and a beat is flagged roughly once per heartbeat; bpm_avg within +-5 of a
 // manual 30 s pulse count after 20 s of settling. Press lightly: squeezing kills the signal.
@@ -27,16 +27,21 @@ void setup() {
     Serial.println("ERROR: MAX30102 not found at 0x57. Run 03_i2c_scan; check VIN=3V3 and the pull-up rail.");
     while (true) delay(1000);
   }
-  // ledBrightness 0x1F = ~6 mA, sampleAverage 4, ledMode 2 = red+IR, 100 sps, 411 us, 4096 nA
-  sensor.setup(0x1F, 4, 2, 100, 411, 4096);
+  // ledBrightness 0x1F = ~6 mA, sampleAverage 4, ledMode 2 = red+IR, 400 sps -> 100 Hz out, 411 us, 4096 nA
+  // (100 Hz effective is what SparkFun's checkForBeat() was tuned for; at 25 Hz it misses most beats.)
+  sensor.setup(0x1F, 4, 2, 400, 411, 4096);
   sensor.setPulseAmplitudeGreen(0);                 // MAX30102 has no green LED
   Serial.printf("part id 0x%02X (0x15 expected)\n", sensor.readPartID());
   Serial.println("t_ms,ir,red,finger,beat,bpm_inst,bpm_avg");
 }
 
 void loop() {
-  long ir = sensor.getIR();                         // blocks until a sample is ready (~25 Hz after averaging)
-  long red = sensor.getRed();
+  // Read through the FIFO. (getIR()+getRed() each wait for a *new* sample, which halves the rate.)
+  sensor.check();
+  if (!sensor.available()) return;
+  long ir = sensor.getFIFOIR();
+  long red = sensor.getFIFORed();
+  sensor.nextSample();
   bool finger = ir > FINGER_THRESHOLD;
   int beat = 0;
 
