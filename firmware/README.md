@@ -1,6 +1,6 @@
 # Firmware
 
-Status: not implemented.
+Status: no application firmware yet. Board bring-up sketches and the test procedure are in [bringup/](bringup/README.md) (added 2026-11-03 when the Nano ESP32 and the 4517 arrived).
 
 Planned target: Arduino Nano ESP32. Implement sensor acquisition, non-blocking scheduling, local ML inference, complete-cycle counting, OLED/button interaction, heart-rate validity handling and a local Wi-Fi/HTTP interface.
 
