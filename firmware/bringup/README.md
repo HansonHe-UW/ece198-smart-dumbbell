@@ -10,7 +10,7 @@
 2. **Tools → Board → Boards Manager**，搜 `Arduino ESP32 Boards`（作者 Arduino，不是 Espressif 那个），安装。下载几百 MB，提前装。
 3. **Tools → Board → Arduino ESP32 Boards → Arduino Nano ESP32**。
 4. **Tools → Pin Numbering** 保持默认 **By Arduino pin**。选成 GPIO 编号的话 A4/A5、D2 这些名字全部错位。
-5. **Library Manager** 装 `Adafruit LSM6DS`，提示一并安装依赖（Adafruit Unified Sensor、Adafruit BusIO）时选 Install all；再装 `SparkFun MAX3010x Pulse and Proximity Sensor Library`。
+5. **Library Manager** 装 `Adafruit LSM6DS`，提示一并安装依赖（Adafruit Unified Sensor、Adafruit BusIO）时选 Install all；再装 `SparkFun MAX3010x Pulse and Proximity Sensor Library`、`Adafruit SSD1306`（会带上 Adafruit GFX）。
 6. 用一根**能传数据**的 USB-C 线。只能充电的线插上后电脑看不到端口，这是最常见的"板子坏了"假警报。
 
 端口：macOS 显示为 `/dev/cu.usbmodemXXXX`，Windows 为 `COMx`，IDE 里名字会标 Arduino Nano ESP32。
@@ -115,11 +115,35 @@ python3 firmware/bringup/record_serial.py /dev/cu.usbmodem1101 data/raw/bench_fl
 
 任何一项不满足，先看 `loop_max_us`：接近或超过 9600 说明某次 I2C 读取太长，通常是 MAX30102 FIFO 一次攒了太多样本，把 `hr.check()` 改成每次最多处理几个样本即可。
 
-## 7. 可选：TensorFlow Lite Micro 编译检查
+## 7. `07_oled_buttons` — OLED、按钮、LED、蜂鸣器可用性
+
+一个最小的界面模型：SW1 开始／暂停，SW2 手动加一次，SW3 结束归零。屏幕显示状态、大号次数／目标、计时。库：Adafruit SSD1306、Adafruit GFX。
+
+接线：
+
+| 器件 | 接到 | 说明 |
+|---|---|---|
+| OLED VCC / GND | 3V3 / GND | **先看模块丝印**，有的是 GND-VCC-SCL-SDA，有的是 VCC-GND-SCL-SDA，接反会烧 |
+| OLED SCL / SDA | A5 / A4 | 和 IMU、心率共用那两行 |
+| SW1 / SW2 / SW3 | D2 / D3 / D4，另一脚到 GND | 内部上拉，不要电阻；套件按钮跨在面包板中沟上 |
+| LED | D7 → 220 Ω → LED 长脚，短脚到 GND | 选红或黄 |
+| 蜂鸣器 | D5，另一脚 GND | 有 Grove 转接线才接；没有就跳过，LED 代替 |
+
+接好先跑 `03_i2c_scan`，应出现 `0x3C SSD1306 OLED`，共 4 个设备。
+
+通过标准：
+- 上电屏幕显示 `IDLE  0 /10` 和按键提示，字清楚不闪。
+- 每次按键串口只打印一条 `EVENT`，不重复、不漏；连按 20 次 SW2 计数正好 20。
+- 每次加一 LED 闪一下，蜂鸣器响一下，到 10 时长响。
+- 大号数字在一臂距离外能认出来。
+
+这一步同时验证了 FR-02 的三键操作和 FR-09 的显示内容雏形。
+
+## 8. 可选：TensorFlow Lite Micro 编译检查
 
 ML 那条线最大的未知数是推理库能不能在这块板上编译。Library Manager 搜 `Chirale_TensorFlowLite`，打开它的 `hello_world` 示例，选 Nano ESP32 只点 **Verify** 不用上传。能编过就记一笔"工具链可用"；编不过把完整报错贴进 Issue，备选方案是 emlearn 把 scikit-learn 模型导成 C 代码。
 
-## 8. 记录什么
+## 9. 记录什么
 
 每个 sketch 一条记录：日期、谁测的、IDE 和开发板包版本、通过与否、异常现象、串口输出截图或前 20 行。IMU 那一步额外记静止时 az 的均值和 gyro 的标准差，以后对比传感器有没有漂移。
 
@@ -135,10 +159,11 @@ ML 那条线最大的未知数是推理库能不能在这块板上编译。Libra
 | 04_imu_stream | 315 kB（10%） | 31.0 kB（9%） |
 | 05_max30102 | 308 kB（9%） | 31.1 kB（9%） |
 | 06_imu_hr_combined | 319 kB（10%） | 31.2 kB（9%） |
+| 07_oled_buttons | 320 kB（10%） | 31.1 kB（9%） |
 
-库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 04 已在板子上跑通（见 `tests/results/`），05 和 06 只编译过。
+库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 05 已在板子上跑过（见 `tests/results/`），06 和 07 只编译过。
 
-第 7 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
+第 8 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
 
 命令行复现（装了 arduino-cli 的话）：
 
