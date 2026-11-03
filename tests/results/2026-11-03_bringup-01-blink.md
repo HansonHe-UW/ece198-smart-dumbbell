@@ -6,7 +6,7 @@
 - Tester: Hanson He (upload and serial capture run by Claude from Hanson's laptop)
 - Related issue: none
 - Requirement / acceptance-test ID: none (board bring-up, precondition for everything else)
-- Commit SHA: 4df4d78 (sketch `firmware/bringup/01_blink`)
+- Commit SHA: 17ac5fa (sketch `firmware/bringup/01_blink`)
 - Firmware and library versions: Arduino ESP32 Boards 2.0.18-arduino.5, arduino-cli 1.5.1, FQBN `arduino:esp32:nano_nora`, no external libraries
 - Model version and dataset split, if relevant: n/a
 - Hardware/module versions and mounting: Arduino Nano ESP32 ABX00083 (headers factory-soldered), received 2026-11-03, loose on the desk, USB-C to laptop only

@@ -6,7 +6,7 @@
 - Tester: Hanson He (wiring, visual check); upload run by Claude
 - Related issue: none
 - Requirement / acceptance-test ID: precondition for FR-09 (display); not an acceptance test
-- Commit SHA: sketch `firmware/bringup/07_oled_buttons` at 3bc855c
+- Commit SHA: sketch `firmware/bringup/07_oled_buttons` at d896bd5
 - Firmware and library versions: Arduino ESP32 Boards 2.0.18-arduino.5, Adafruit SSD1306 + Adafruit GFX (versions as installed in Hanson's IDE)
 - Hardware/module versions and mounting: course-kit 0.96" OLED, SSD1306, I2C address 0x3C, 128x64; on the breadboard bus together with the Adafruit 4517 and the GY-MAX30102 (4 devices total). Buttons, LED and buzzer NOT connected in this run.
 - Test level: physical hardware

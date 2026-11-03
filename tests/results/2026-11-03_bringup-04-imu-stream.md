@@ -6,7 +6,7 @@
 - Tester: Hanson He (wiring); upload and capture run by Claude from Hanson's laptop
 - Related issue: none
 - Requirement / acceptance-test ID: first evidence towards FR-03 (continuous 6-axis acquisition with timing); not an acceptance test
-- Commit SHA: sketch `firmware/bringup/04_imu_stream` at 4df4d78
+- Commit SHA: sketch `firmware/bringup/04_imu_stream` at 17ac5fa
 - Firmware and library versions: Arduino ESP32 Boards 2.0.18-arduino.5, Adafruit LSM6DS 4.7.4, Adafruit Unified Sensor 1.1.15, Adafruit BusIO 1.17.4
 - Hardware/module versions and mounting: Nano ESP32 on the course breadboard; Adafruit 4517 on a 4209 cable, lying loose on the desk (not flat: gravity mostly on +X). Settings: accel ±4 g, gyro ±500 dps, 104 Hz ODR, I2C 400 kHz.
 - Test level: physical hardware
