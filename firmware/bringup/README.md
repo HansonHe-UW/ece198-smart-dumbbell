@@ -102,11 +102,24 @@ python3 firmware/bringup/record_serial.py /dev/cu.usbmodem1101 data/raw/bench_fl
 
 手指要**轻放**，用力压会把血挤走，信号反而没了。环境光强时用手遮一下。这一步测的是静止心率；运动中心率是另一回事，要等 AT-04 的方法定下来再测。
 
-## 6. 可选：TensorFlow Lite Micro 编译检查
+## 6. `06_imu_hr_combined` — 两个传感器同时跑（协同性）
+
+接线同第 5 步，4517 和 GY-MAX30102 都挂在总线上。这一步回答的是 FR-13 和 AT-07 的前半句：心率处理会不会拖慢动作采样。两个传感器在一个非阻塞 loop 里轮流服务，IMU 按 104 Hz 定时，MAX30102 从 FIFO 里有多少取多少。
+
+串口三种行：`I,` 开头是 IMU 样本（104 Hz），`H,` 开头是心率样本（约 25 Hz），`S,` 开头每 5 秒一条统计。统计列：IMU 样本数、实际频率、最大间隔 ms、累计迟到次数、心率样本数、心率频率、单次 loop 最长耗时 µs。
+
+通过标准（手指放在 MAX30102 上、同时晃动 IMU 的 30 秒内）：
+- `imu_hz` 在 103 到 105 之间，`imu_dt_max_ms` 不超过 12，`imu_late` 不增加。
+- `hr_hz` 约 25，`H` 行里仍有 `beat=1` 出现。
+- `loop_max_us` 明显小于 9600（一个 IMU 周期）。
+
+任何一项不满足，先看 `loop_max_us`：接近或超过 9600 说明某次 I2C 读取太长，通常是 MAX30102 FIFO 一次攒了太多样本，把 `hr.check()` 改成每次最多处理几个样本即可。
+
+## 7. 可选：TensorFlow Lite Micro 编译检查
 
 ML 那条线最大的未知数是推理库能不能在这块板上编译。Library Manager 搜 `Chirale_TensorFlowLite`，打开它的 `hello_world` 示例，选 Nano ESP32 只点 **Verify** 不用上传。能编过就记一笔"工具链可用"；编不过把完整报错贴进 Issue，备选方案是 emlearn 把 scikit-learn 模型导成 C 代码。
 
-## 7. 记录什么
+## 8. 记录什么
 
 每个 sketch 一条记录：日期、谁测的、IDE 和开发板包版本、通过与否、异常现象、串口输出截图或前 20 行。IMU 那一步额外记静止时 az 的均值和 gyro 的标准差，以后对比传感器有没有漂移。
 
@@ -121,10 +134,11 @@ ML 那条线最大的未知数是推理库能不能在这块板上编译。Libra
 | 03_i2c_scan | 303 kB（9%） | 30.9 kB（9%） |
 | 04_imu_stream | 315 kB（10%） | 31.0 kB（9%） |
 | 05_max30102 | 308 kB（9%） | 31.1 kB（9%） |
+| 06_imu_hr_combined | 319 kB（10%） | 31.2 kB（9%） |
 
-库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 04 已在板子上跑通（见 `tests/results/`），05 只编译过。
+库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 04 已在板子上跑通（见 `tests/results/`），05 和 06 只编译过。
 
-第 6 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
+第 7 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
 
 命令行复现（装了 arduino-cli 的话）：
 
