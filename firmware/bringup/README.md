@@ -30,7 +30,9 @@
 
 接线：只插 USB-C。
 
-通过标准：手机 Wi-Fi 列表出现 `SmartDumbbell-57`，密码 `ece198test` 能连上，浏览器打开 `http://192.168.4.1` 显示一行 uptime 文本。串口里能看到 `stations=1`。
+通过标准：串口每 2 秒一行 `AP SmartDumbbell-57  ip=192.168.4.1  stations=0 ...`；手机 Wi-Fi 列表出现 `SmartDumbbell-57`，密码 `ece198test` 能连上，连上后那一行变成 `stations=1`；浏览器打开 `http://192.168.4.1` 显示一行 uptime 文本。
+
+**串口工具的坑（2026-11-03 踩过）：** 不要在这块板的串口上切换 DTR/RTS。Arduino ESP32 内核把"DTR/RTS 翻转"当成进入下载模式的信号，板子会重启进 ROM 下载模式，端口名变成 `usbmodem1101` 之类，串口只剩一行 `waiting for download`，之后 IDE 上传报 `exit status 74`。IDE 的串口监视器和 `cat` 不会触发；pyserial 脚本里不要碰 `dtr`/`rts`。恢复：按一下 RST；没有人在板子旁边时可以用 esptool 5.x 执行 `esptool --chip esp32s3 --port <端口> --after watchdog-reset chip-id`，普通 `hard_reset` 出不来。
 
 顺便记录：从上电到热点出现用了几秒（之后 AT-08 断线重连要用）。
 

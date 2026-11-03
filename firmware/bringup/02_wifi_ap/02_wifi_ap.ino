@@ -21,6 +21,14 @@ void setup() {
 }
 
 void loop() {
+  // heartbeat every 2 s so the test does not depend on catching the boot message
+  static unsigned long last = 0;
+  if (millis() - last >= 2000) {
+    last = millis();
+    Serial.printf("AP %s  ip=%s  stations=%d  uptime=%lu ms\n",
+                  AP_SSID, WiFi.softAPIP().toString().c_str(),
+                  WiFi.softAPgetStationNum(), millis());
+  }
   WiFiClient client = server.available();
   if (!client) return;
   unsigned long t0 = millis();
