@@ -10,7 +10,7 @@
 - Firmware and library versions: Arduino ESP32 Boards 2.0.18-arduino.5, arduino-cli 1.5.1, FQBN `arduino:esp32:nano_nora`, WiFi library from the core
 - Hardware/module versions and mounting: Arduino Nano ESP32 ABX00083, loose on the desk, USB-C to laptop only
 - Test level: physical hardware
-- Status: Run, partially verified
+- Status: Run
 
 ## Objective and predefined acceptance criterion
 
@@ -33,11 +33,18 @@ AP SmartDumbbell-57  ip=192.168.4.1  stations=0  uptime=12000 ms
 ```
 
 - Laptop scan list did not contain `SmartDumbbell-57` in two checks. Inconclusive: that list is not a fresh scan and the laptop was not disconnected from its own network to try joining.
-- No client has joined yet, so the HTTP response and `stations=1` are untested.
+- A few minutes later Hanson joined the AP from a phone and opened http://192.168.4.1; the page returned the uptime text line. Serial heartbeat at that time:
+
+```
+AP SmartDumbbell-57  ip=192.168.4.1  stations=3  uptime=222000 ms
+AP SmartDumbbell-57  ip=192.168.4.1  stations=3  uptime=224000 ms
+```
+
+- `stations=3`, not 1: two other devices also joined (the password is in the public repository and the AP was left running for a few minutes). Not a fault, but a reminder to change the credentials before any demo.
 
 ## Result and limitations
 
-- Outcome: Inconclusive (AP reported up by firmware; no external device has seen or joined it yet)
-- Evidence: serial capture above
-- Known limitations: softAP() returning true only proves the driver started; radio and antenna are proven only when another device joins.
-- Follow-up task: on a phone, join `SmartDumbbell-57` / `ece198test`, open http://192.168.4.1, and note the `stations=1` heartbeat line; then update this record to Pass or Fail.
+- Outcome: Pass
+- Evidence: serial captures above and the HTTP response seen on the phone
+- Known limitations: no range or throughput measurement; the AP had 3 stations with the default credentials.
+- Follow-up task: run `03_i2c_scan` with the 4517 connected. Change AP_SSID/AP_PASS before the demo.
