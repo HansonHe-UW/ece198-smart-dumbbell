@@ -41,9 +41,22 @@ t_ms,ax,ay,az,gx,gy,gz
 6502,9.631,0.053,-1.840,-0.12,-0.60,-0.09
 ```
 
+## Axis check (same day, second capture, 83 s)
+
+Hanson moved the board through a scripted sequence while the stream was recorded; segments were analysed offline by integrating the gyro over each move.
+
+| Move (as performed) | Gyro column that responded | Integrated angle | Reading |
+|---|---|---|---|
+| Flat on the desk, component side up, still | none (max 1.9 deg/s) | - | accel = (0.1, 0.2, +10.06) m/s², so +Z is up |
+| Quarter turn clockwise seen from above, then back | gz | -73 deg, then +89 deg | clockwise about Z-up is negative: right-hand rule holds |
+| Lift the far edge 45 deg, put back | gy | +41 deg, then -46 deg | +Y points to the user's right |
+| Lift the right edge 45 deg, put back | gx | +77 deg, then -77 deg | +X points toward the user |
+
+The three results are mutually consistent with a right-handed sensor frame, so the LSM6DSOX sign convention and the library's axis mapping are correct. Which physical direction each arrow on the 4517 silkscreen points was not compared yet; the frame above is relative to how the board happened to lie. Flat-rest Z reads 10.06 m/s² (about +0.25 m/s² offset); within the LSM6DSOX zero-g offset spec, remove with calibration.
+
 ## Result and limitations
 
 - Outcome: Pass
 - Evidence: capture statistics above; raw 3 s file kept outside the repository
-- Known limitations: no motion applied during this capture, so axis sign and gyro response to rotation are not yet checked by eye; gyro bias about -0.5 deg/s on Y is normal and will be removed by calibration. Streaming at 104 Hz over USB only; Wi-Fi streaming untested.
-- Follow-up task: rotate the board slowly about each axis and confirm the matching gyro column responds with the expected sign; then record a first 30 s file with `record_serial.py`.
+- Known limitations: integrated tilt angles came out 41 to 46 deg for nominal 45 deg moves and 73 to 89 deg for nominal quarter turns; hand moves are not precise enough to call this a scale test. Gyro bias about -0.5 deg/s on Y will be removed by calibration. Streaming at 104 Hz over USB only; Wi-Fi streaming untested.
+- Follow-up task: compare the frame above with the X/Y/Z arrows printed on the 4517; record a first 30 s file with `record_serial.py`.
