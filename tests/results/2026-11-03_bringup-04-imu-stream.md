@@ -52,11 +52,11 @@ Hanson moved the board through a scripted sequence while the stream was recorded
 | Lift the far edge 45 deg, put back | gy | +41 deg, then -46 deg | +Y points to the user's right |
 | Lift the right edge 45 deg, put back | gx | +77 deg, then -77 deg | +X points toward the user |
 
-The three results are mutually consistent with a right-handed sensor frame, so the LSM6DSOX sign convention and the library's axis mapping are correct. Which physical direction each arrow on the 4517 silkscreen points was not compared yet; the frame above is relative to how the board happened to lie. Flat-rest Z reads 10.06 m/s² (about +0.25 m/s² offset); within the LSM6DSOX zero-g offset spec, remove with calibration.
+The three results are mutually consistent with a right-handed sensor frame, so the LSM6DSOX sign convention and the library's axis mapping are correct. Hanson then compared this with the 4517 silkscreen: the printed X arrow pointed toward him and Y to his right, matching the measured frame. Silkscreen, sensor and library agree. Flat-rest Z reads 10.06 m/s² (about +0.25 m/s² offset); within the LSM6DSOX zero-g offset spec, remove with calibration.
 
 ## Result and limitations
 
 - Outcome: Pass
 - Evidence: capture statistics above; raw 3 s file kept outside the repository
 - Known limitations: integrated tilt angles came out 41 to 46 deg for nominal 45 deg moves and 73 to 89 deg for nominal quarter turns; hand moves are not precise enough to call this a scale test. Gyro bias about -0.5 deg/s on Y will be removed by calibration. Streaming at 104 Hz over USB only; Wi-Fi streaming untested.
-- Follow-up task: compare the frame above with the X/Y/Z arrows printed on the 4517; record a first 30 s file with `record_serial.py`.
+- Follow-up task: record a first 30 s file with `record_serial.py`; then decide the IMU mounting orientation in the handle so the curl axis maps to one gyro column.
