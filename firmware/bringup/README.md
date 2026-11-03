@@ -161,7 +161,7 @@ ML 那条线最大的未知数是推理库能不能在这块板上编译。Libra
 | 06_imu_hr_combined | 319 kB（10%） | 31.2 kB（9%） |
 | 07_oled_buttons | 320 kB（10%） | 31.1 kB（9%） |
 
-库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 05 已在板子上跑过（见 `tests/results/`），06 和 07 只编译过。
+库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 05 和 07 的屏幕部分已在板子上跑过（见 `tests/results/`），06 和 07 的按键部分只编译过。
 
 第 8 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
 
