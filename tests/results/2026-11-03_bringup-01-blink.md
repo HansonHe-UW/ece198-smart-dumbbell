@@ -39,11 +39,11 @@ rgb 1 on, uptime 26845 ms
 ```
 
 - Interval between lines 600 ms, matching 300 ms on + 300 ms off. Colour index cycles 0, 1, 2 as written.
-- LED colours and the yellow LED were NOT visually checked when this record was written; the capture was done without looking at the board.
+- Visual check by Hanson a few minutes after the capture: red, green, blue cycle in turn and the yellow LED blinks with them. Active-low RGB assumption confirmed.
 
 ## Result and limitations
 
-- Outcome: Pass (upload and serial); visual LED check pending
-- Evidence: serial capture above
-- Known limitations: no visual confirmation of LED polarity. If the RGB LED stays off or is inverted, the active-low assumption in the sketch is wrong; fix the sketch and the note in `hardware/wiring/README.md`.
-- Follow-up task: look at the board and confirm red, green, blue cycle; then run `02_wifi_ap`.
+- Outcome: Pass
+- Evidence: serial capture above plus visual confirmation
+- Known limitations: none for this step
+- Follow-up task: run `02_wifi_ap`.
