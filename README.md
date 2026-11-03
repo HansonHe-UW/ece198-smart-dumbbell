@@ -69,6 +69,7 @@ Counting, sensing, and the display are intended to continue when the computer di
 - [x] Create a concept CAD model and appearance render.
 - [x] Prepare a pitch deck and narration.
 - [x] Select the controller and IMU and record prices (2026-10-31).
+- [x] Nano ESP32 and 4517 received and brought up: upload, Wi-Fi AP, I2C, 104 Hz IMU stream (2026-11-03).
 - [ ] Confirm loan modules, dimensions, connector clearances, and budget.
 - [ ] Test grip heart-rate feasibility against a synchronized reference.
 - [ ] Build a rule-based counting baseline and collect labelled motion recordings.
