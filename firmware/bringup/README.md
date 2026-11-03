@@ -10,7 +10,7 @@
 2. **Tools → Board → Boards Manager**，搜 `Arduino ESP32 Boards`（作者 Arduino，不是 Espressif 那个），安装。下载几百 MB，提前装。
 3. **Tools → Board → Arduino ESP32 Boards → Arduino Nano ESP32**。
 4. **Tools → Pin Numbering** 保持默认 **By Arduino pin**。选成 GPIO 编号的话 A4/A5、D2 这些名字全部错位。
-5. **Library Manager** 装 `Adafruit LSM6DS`，提示一并安装依赖（Adafruit Unified Sensor、Adafruit BusIO）时选 Install all。
+5. **Library Manager** 装 `Adafruit LSM6DS`，提示一并安装依赖（Adafruit Unified Sensor、Adafruit BusIO）时选 Install all；再装 `SparkFun MAX3010x Pulse and Proximity Sensor Library`。
 6. 用一根**能传数据**的 USB-C 线。只能充电的线插上后电脑看不到端口，这是最常见的"板子坏了"假警报。
 
 端口：macOS 显示为 `/dev/cu.usbmodemXXXX`，Windows 为 `COMx`，IDE 里名字会标 Arduino Nano ESP32。
@@ -80,11 +80,33 @@ python3 firmware/bringup/record_serial.py /dev/cu.usbmodem1101 data/raw/bench_fl
 
 量程设置：加速度 ±4 g，陀螺仪 ±500 dps，104 Hz。这是 ML 计划里提议的采集设置，改之前先改 `ml/README.md`。
 
-## 5. 可选：TensorFlow Lite Micro 编译检查
+## 5. `05_max30102` — 心率模块出数
+
+接线（GY-MAX30102 模块用杜邦线接到面包板，和 IMU 共用同一条 I2C 总线）：
+
+| 模块引脚 | 接到 |
+|---|---|
+| VIN | 3V3（和 4209 红线同一行） |
+| GND | GND |
+| SCL | A5（和黄线同一行） |
+| SDA | A4（和蓝线同一行） |
+| INT、IRD、RD | 不接 |
+
+很多 GY-MAX30102 到手时排针是散装的，要先焊；只焊 VIN、GND、SCL、SDA 四根也行。接好后先跑一遍 `03_i2c_scan`，应该多出 `0x57 MAX30102`，共 3 个设备。扫不到 0x57 但 IMU 还在，就是这块模块的 1.8 V 上拉问题，见 `hardware/wiring/README.md`。
+
+通过标准：
+- 串口第一行 `part id 0x15`。
+- 没手指时 `ir` 小于 20000；手指轻放在窗口上 `ir` 跳到 50000 以上，`finger` 变 1。
+- 等 20 秒稳定后，`beat` 大约每次心跳置 1 一次，`bpm_avg` 和你自己数 30 秒脉搏乘 2 的结果相差不超过 5。
+- 手指拿开 2 秒内 `finger` 回 0，`bpm` 归零（这是 FR-08、AT-06 的雏形）。
+
+手指要**轻放**，用力压会把血挤走，信号反而没了。环境光强时用手遮一下。这一步测的是静止心率；运动中心率是另一回事，要等 AT-04 的方法定下来再测。
+
+## 6. 可选：TensorFlow Lite Micro 编译检查
 
 ML 那条线最大的未知数是推理库能不能在这块板上编译。Library Manager 搜 `Chirale_TensorFlowLite`，打开它的 `hello_world` 示例，选 Nano ESP32 只点 **Verify** 不用上传。能编过就记一笔"工具链可用"；编不过把完整报错贴进 Issue，备选方案是 emlearn 把 scikit-learn 模型导成 C 代码。
 
-## 6. 记录什么
+## 7. 记录什么
 
 每个 sketch 一条记录：日期、谁测的、IDE 和开发板包版本、通过与否、异常现象、串口输出截图或前 20 行。IMU 那一步额外记静止时 az 的均值和 gyro 的标准差，以后对比传感器有没有漂移。
 
@@ -98,10 +120,11 @@ ML 那条线最大的未知数是推理库能不能在这块板上编译。Libra
 | 02_wifi_ap | 706 kB（22%） | 56.3 kB（17%） |
 | 03_i2c_scan | 303 kB（9%） | 30.9 kB（9%） |
 | 04_imu_stream | 315 kB（10%） | 31.0 kB（9%） |
+| 05_max30102 | 308 kB（9%） | 31.1 kB（9%） |
 
-库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4。
+库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 04 已在板子上跑通（见 `tests/results/`），05 只编译过。
 
-第 5 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
+第 6 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
 
 命令行复现（装了 arduino-cli 的话）：
 
