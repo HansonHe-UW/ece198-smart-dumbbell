@@ -6,6 +6,18 @@
 
 UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为 CCCARE 居家康复做一个**智能哑铃**：手柄里的惯性传感器 + 微控制器上的机器学习识别二头弯举并计数，手柄上的光学传感器在运动中测心率，OLED 本地显示，Wi-Fi 把数据发到电脑记录。版本 1 只做一个动作（bicep curl），三个类别 `curl` / `idle` / `other`。最终演示日期记为 2026-11-25（来自组员口头说法，未对照 LEARN 核实）。
 
+分工（2026-11-03 定）：
+
+| 方向 | 负责人 |
+|---|---|
+| 动作分类（ML 线 1） | Hanson He |
+| 计数与板上集成（ML 线 2） | Julia Zhang |
+| 上位机记录（issue #2） | Julia Zhang |
+| 硬件：电子、电源、接线、心率模块 | Zoe Wang |
+| 外壳 CAD 与打印 | Eric Zhu |
+
+心率算法（FR-07、FR-08）还没有人认领。
+
 ## 2. 现在到底有什么、没有什么
 
 **有：**
@@ -49,7 +61,7 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 - 2026-11-01：电源定为 INIU P81 充电宝，不用裸锂电池。
 - 2026-11-02：接线 v1 草图和引脚提议入库（`hardware/wiring/`）。
 - 2026-11-03：板子到货当天完成 bring-up。四个 I2C 设备（0x1C、0x3C、0x57、0x6A）同挂一条总线无冲突；IMU 轴向与丝印一致；MAX30102 的 1.8 V 上拉没有挡住通信。
-- 2026-11-03：ML 拆成"动作分类"和"计数与板上集成"两条线各自负责，中间只有一个接口约定；录音匿名化后提交到 `data/sessions/`。详见 `ml/workplan.md`。
+- 2026-11-03：ML 拆成"动作分类"和"计数与板上集成"两条线各自负责（Hanson He、Julia Zhang），中间只有一个接口约定；录音匿名化后提交到 `data/sessions/`。详见 `ml/workplan.md`。
 
 ## 5. 还没定的事（需要人拍板，AI 不要替团队决定）
 
@@ -97,14 +109,14 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 
 ## 9. 各条线的入口（给要开工的人）
 
-| 方向 | 第一步 | 产出放哪 |
-|---|---|---|
-| 固件 | 三个独立读数 sketch：IMU 100 Hz 串口输出、MAX30102 原始红外、OLED 显示 | `firmware/` |
-| 动作分类 | 按 `ml/workplan.md` 第 2 节：先写录数据协议，再训练按人划分评估的小模型，导出到板子 | `ml/`、`firmware/classifier/`，匿名录音放 `data/sessions/` |
-| 计数与板上集成 | 按 `ml/workplan.md` 第 3 节：用录好的 CSV 离线调计数器，不等模型；再加门控和状态机上板 | `firmware/counter/`、`ml/tools/`、`tests/results/` |
-| 上位机 | 电脑端接收 Wi-Fi 数据、实时显示、导出 CSV 和会话摘要（FR-11、FR-12） | `software/` |
-| 外壳 | 从充电宝腔体和单侧头部布局开始建模，壁厚 2–3 mm，2026-11-10 前出第一版打印件 | `hardware/cad/`，新版本用新文件名 |
-| 心率可行性 | 借参考设备，做 AT-04 的 60 秒同步对比，先于冻结测试方法 | `tests/`，用 `tests/templates/test-record.md` |
+| 方向 | 负责人 | 第一步 | 产出放哪 |
+|---|---|---|---|
+| 固件 | Zoe Wang（传感器读数）/ 两条 ML 线（分类、计数） | 三个独立读数 sketch：IMU 100 Hz 串口输出、MAX30102 原始红外、OLED 显示 | `firmware/` |
+| 动作分类 | Hanson He | 按 `ml/workplan.md` 第 2 节：先写录数据协议，再训练按人划分评估的小模型，导出到板子 | `ml/`、`firmware/classifier/`，匿名录音放 `data/sessions/` |
+| 计数与板上集成 | Julia Zhang | 按 `ml/workplan.md` 第 3 节：用录好的 CSV 离线调计数器，不等模型；再加门控和状态机上板 | `firmware/counter/`、`ml/tools/`、`tests/results/` |
+| 上位机 | Julia Zhang | 电脑端接收 Wi-Fi 数据、实时显示、导出 CSV 和会话摘要（FR-11、FR-12） | `software/` |
+| 外壳 | Eric Zhu | 从充电宝腔体和单侧头部布局开始建模，壁厚 2–3 mm，2026-11-10 前出第一版打印件 | `hardware/cad/`，新版本用新文件名 |
+| 心率可行性 | Zoe Wang | 借参考设备，做 AT-04 的 60 秒同步对比，先于冻结测试方法 | `tests/`，用 `tests/templates/test-record.md` |
 
 ## 10. 给 AI 的工作规则（摘要，完整版在 AGENTS.md）
 

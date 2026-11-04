@@ -39,7 +39,8 @@ Record a dated decision, reason, supporting evidence and affected files when any
 
 - **Decision:** Movement classification (FR-03, FR-04, AT-01) and repetition counting with on-device integration (FR-02, FR-05, FR-06, AT-02, AT-03) are two separately owned lines, each with its own files, branch, issue and documentation. The only shared contract is the classifier output (`t_ms,label,conf`, one result per second over a 2 s window at 104 Hz), recorded as a draft in `ml/workplan.md` section 4 and to be confirmed in the week of 2026-11-04. Anonymised recordings are committed under `data/sessions/` (participant codes only); `data/raw/` and `data/private/` stay ignored for anything that cannot be anonymised.
 - **Reason:** Counting can be demonstrated without the classifier but not the other way round, so the counter must not wait for the model. Splitting by task rather than by pipeline stage lets each owner test against their own acceptance targets. One board exists, so recordings must be shared through the repository for the second owner to work offline.
-- **Open:** owner names, IMU mounting orientation (must be fixed before the first recording), and how `curl_partial` recordings are labelled for training.
+- **Owners:** classification Hanson He; counting and integration Julia Zhang. Other areas recorded the same day in `HANDOFF.md`: enclosure Eric Zhu, hardware Zoe Wang, computer logger Julia Zhang (issue #2). Heart-rate algorithm unassigned.
+- **Open:** IMU mounting orientation (must be fixed before the first recording), and how `curl_partial` recordings are labelled for training.
 - **Affected files:** `ml/workplan.md` (new), `data/sessions/README.md` (new), `ml/README.md`, `HANDOFF.md`, `README.md`.
 
 ### 2026-11-01: Power supply selected and purchased
