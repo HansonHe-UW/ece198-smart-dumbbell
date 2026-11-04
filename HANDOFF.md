@@ -24,7 +24,7 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 - 完整的需求规格（中英文）、验收目标 AT-01 到 AT-10、决策记录、硬件与预算表、团队 Git 流程说明。
 - 概念 CAD v0.1（DWG + 生成脚本）和一张 AI 渲染图。
 - 第一版 pitch deck 和讲稿（内容仍写着旧方案 ADXL335，是交付过的快照，不要悄悄改）。
-- v1 接线图和接线表（`hardware/wiring/`）。引脚分配已在面包板上验证过一轮。
+- v1 原理图（`schematic-v1.svg`，2026-11-04 按实物重画）、接线图和接线表（`hardware/wiring/`）。I2C 部分已在面包板上验证；按钮、LED、蜂鸣器还没接。
 - 到货的 Nano ESP32、Adafruit 4517、两根 4209 线，借到的 GY-MAX30102，套件 OLED；已买的充电宝。
 - `ml/workplan.md`：动作分类和计数两条线的分工、接口草案、录数据计划和到 11-24 的时间表（2026-11-03 组内同意）。`ml/data-protocol.md` v0.1 录数据协议。
 - `ml/train/` 训练流程（切窗、31 个特征、按人划分评估、导出 C 头文件）在合成数据上跑通；`firmware/classifier/` 板上分类器编译通过、主机侧自检与 Python 一致到 1e-6，**还没在板子上跑过**，头文件是合成数据训出来的。
@@ -90,7 +90,7 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 1. `docs/decisions.md` — 决策日志和未决问题，带日期。
 2. `docs/hardware.md` — 零件、价格、接口注意事项、到货检查项。
 3. `docs/specification.md` / `docs/specification-zh.md` — 需求 FR-01…13 和验收 AT-01…10。两个语言版本要同步改。
-4. `hardware/wiring/README.md` + `wiring-v1.svg` — 引脚分配提议和网络表。
+4. `hardware/wiring/README.md` + `schematic-v1.svg`（原理图，由 `gen_schematic.py` 生成）+ `wiring-v1.svg` — 引脚分配和网络表。
 5. `README.md` — 概览和里程碑勾选。
 6. `docs/team-guide.md` + `CONTRIBUTING.md` — Git 流程（中文）。
 7. `AGENTS.md` — 给 AI 代理的规则，和本文件互补。
