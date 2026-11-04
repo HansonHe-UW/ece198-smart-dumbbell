@@ -59,7 +59,7 @@ Counting, sensing, and the display are intended to continue when the computer di
 | `presentation/` | Current pitch and matching narration |
 | `firmware/` | Planned Nano ESP32 implementation; no code yet |
 | `software/` | Planned computer interface and logging; no code yet |
-| `ml/` | Planned data processing and classifier; no model yet |
+| `ml/` | Work plan for classification and counting (`ml/workplan.md`); no model yet |
 | `tests/` | Acceptance-test tracking; no measured results yet |
 | `data/` | Data-handling guidance; no participant recordings |
 

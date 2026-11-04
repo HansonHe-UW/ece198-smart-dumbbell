@@ -1,5 +1,7 @@
 # Motion model
 
+Work split, interface contract, recording plan and timeline: `workplan.md` (Chinese, agreed 2026-11-03).
+
 Status: no recordings, training pipeline, trained model or evaluation results committed.
 
 Classes: curl, idle, other. Collect data with the intended mounting orientation and different movement speeds. Include pauses, partial movements, pickup and put-down as appropriate examples. Define labels before collecting data.

@@ -14,6 +14,7 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 - 第一版 pitch deck 和讲稿（内容仍写着旧方案 ADXL335，是交付过的快照，不要悄悄改）。
 - v1 接线图和接线表（`hardware/wiring/`）。引脚分配已在面包板上验证过一轮。
 - 到货的 Nano ESP32、Adafruit 4517、两根 4209 线，借到的 GY-MAX30102，套件 OLED；已买的充电宝。
+- `ml/workplan.md`：动作分类和计数两条线的分工、接口草案、录数据计划和到 11-24 的时间表（2026-11-03 组内同意，负责人姓名待填）。
 - `firmware/bringup/` 里 7 个测试 sketch 和中文步骤说明；`tests/results/` 里 2026-11-03 的 6 条真实测试记录：烧录、Wi-Fi 热点、I2C 扫描、IMU 104 Hz 出数和轴向、心率模块、OLED。
 
 **没有：**
@@ -48,6 +49,7 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 - 2026-11-01：电源定为 INIU P81 充电宝，不用裸锂电池。
 - 2026-11-02：接线 v1 草图和引脚提议入库（`hardware/wiring/`）。
 - 2026-11-03：板子到货当天完成 bring-up。四个 I2C 设备（0x1C、0x3C、0x57、0x6A）同挂一条总线无冲突；IMU 轴向与丝印一致；MAX30102 的 1.8 V 上拉没有挡住通信。
+- 2026-11-03：ML 拆成"动作分类"和"计数与板上集成"两条线各自负责，中间只有一个接口约定；录音匿名化后提交到 `data/sessions/`。详见 `ml/workplan.md`。
 
 ## 5. 还没定的事（需要人拍板，AI 不要替团队决定）
 
@@ -98,7 +100,8 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 | 方向 | 第一步 | 产出放哪 |
 |---|---|---|
 | 固件 | 三个独立读数 sketch：IMU 100 Hz 串口输出、MAX30102 原始红外、OLED 显示 | `firmware/` |
-| 计数算法 / ML | 先做阈值计数基线（陀螺仪 X 轴过零），再录数据训练；按参与者或会话划分训练测试集，不能随机切窗口 | `ml/`，数据放 `data/`（原始录音默认被 .gitignore） |
+| 动作分类 | 按 `ml/workplan.md` 第 2 节：先写录数据协议，再训练按人划分评估的小模型，导出到板子 | `ml/`、`firmware/classifier/`，匿名录音放 `data/sessions/` |
+| 计数与板上集成 | 按 `ml/workplan.md` 第 3 节：用录好的 CSV 离线调计数器，不等模型；再加门控和状态机上板 | `firmware/counter/`、`ml/tools/`、`tests/results/` |
 | 上位机 | 电脑端接收 Wi-Fi 数据、实时显示、导出 CSV 和会话摘要（FR-11、FR-12） | `software/` |
 | 外壳 | 从充电宝腔体和单侧头部布局开始建模，壁厚 2–3 mm，2026-11-10 前出第一版打印件 | `hardware/cad/`，新版本用新文件名 |
 | 心率可行性 | 借参考设备，做 AT-04 的 60 秒同步对比，先于冻结测试方法 | `tests/`，用 `tests/templates/test-record.md` |
