@@ -26,7 +26,7 @@
 1. 定录数据协议并写进 `ml/data-protocol.md`：传感器在哑铃上的安装方向、每个人录哪些动作录多久、三类标签的边界、文件命名。第 5 节是起点。
 2. 写训练流程：读 `data/sessions/` 的 CSV → 切 2 s 窗 → 算特征 → 训练 → 评估。先用手工特征（每轴均值、标准差、最大最小、陀螺仪过零次数等）加逻辑回归或很小的 MLP。能过 AT-01 就不要换更大的模型。
 3. 评估必须按人划分：测试集里的人不能出现在训练集。报告混淆矩阵和 macro-F1。随机切窗口得到的成绩不算。
-4. 导出模型到板子（TensorFlow Lite Micro，`Chirale_TensorFlowLite` 的 hello_world 已在 `nano_nora` 上编译通过），实测一次推理用多少毫秒、模型占多少 Flash 和 RAM。
+4. 导出模型到板子。现方案是 `ml/train/export_c.py` 生成权重头文件，`firmware/classifier/classifier.h` 用纯 C++ 做特征和推理（TensorFlow Lite Micro 作备选，`Chirale_TensorFlowLite` 的 hello_world 已在 `nano_nora` 上编译通过）。实测一次推理用多少毫秒、模型占多少 Flash 和 RAM。
 5. 按第 4 节的格式给计数线一个函数或串口输出。
 
 **交付物**
@@ -77,7 +77,7 @@ t_ms,ax,ay,az,gx,gy,gz
 | `label` | `curl` / `idle` / `other` | 三类之一 |
 | `conf` | 0.00–1.00 | 该标签的置信度 |
 
-板上以 C++ 函数形式提供（示意：`bool classify(const Window&, Label&, float&)`）；电脑上离线调试时以同格式的 CSV 提供。
+板上以 C++ 函数提供（`firmware/classifier/classifier.h`：`clf_features()` + `clf_infer()` 返回 label 和 probs），串口同时打印一行 `C,<t_ms>,<label>,<conf>,<inference_us>`；电脑上离线调试时以同字段的 CSV 提供。
 
 **计数线只认 `label`**：最近一条为 `curl` 时允许计数，否则冻结计数器但继续跟踪角度，避免切回 `curl` 时漏掉半个动作。`conf` 第一版不用，留给以后加阈值。
 
@@ -108,7 +108,7 @@ t_ms,ax,ay,az,gx,gy,gz
 
 | 周 | 分类线 | 计数线 | 共同 |
 |---|---|---|---|
-| 11-04 ～ 11-10 | 写 `data-protocol.md`；确认第 4 节接口 | 搭离线计数脚本，用 bring-up 已录的样本先跑通 | 定 IMU 安装方向；录前 2 ～ 3 人 |
+| 11-04 ～ 11-10 | `data-protocol.md` v0.1 和训练流程已于 11-03 入库；本周确认第 4 节接口、填安装方向 | 搭离线计数脚本，用 bring-up 已录的样本先跑通 | 定 IMU 安装方向；录前 2 ～ 3 人 |
 | 11-11 ～ 11-17 | 第一版模型，按人划分评估；板上推理时间 | 离线跑 AT-02、AT-03 全部 40 组；参数定稿；开始 C++ | 录满 6 人 |
 | 11-18 ～ 11-24 | 模型上板，输出接口；AT-01 记录 | 门控接入；状态机与按钮屏幕；上板复测 AT-02、AT-03 | 10 分钟连续运行（AT-07 的动作部分） |
 

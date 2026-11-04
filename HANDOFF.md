@@ -26,7 +26,8 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 - 第一版 pitch deck 和讲稿（内容仍写着旧方案 ADXL335，是交付过的快照，不要悄悄改）。
 - v1 接线图和接线表（`hardware/wiring/`）。引脚分配已在面包板上验证过一轮。
 - 到货的 Nano ESP32、Adafruit 4517、两根 4209 线，借到的 GY-MAX30102，套件 OLED；已买的充电宝。
-- `ml/workplan.md`：动作分类和计数两条线的分工、接口草案、录数据计划和到 11-24 的时间表（2026-11-03 组内同意，负责人姓名待填）。
+- `ml/workplan.md`：动作分类和计数两条线的分工、接口草案、录数据计划和到 11-24 的时间表（2026-11-03 组内同意）。`ml/data-protocol.md` v0.1 录数据协议。
+- `ml/train/` 训练流程（切窗、31 个特征、按人划分评估、导出 C 头文件）在合成数据上跑通；`firmware/classifier/` 板上分类器编译通过、主机侧自检与 Python 一致到 1e-6，**还没在板子上跑过**，头文件是合成数据训出来的。
 - `firmware/bringup/` 里 7 个测试 sketch 和中文步骤说明；`tests/results/` 里 2026-11-03 的 6 条真实测试记录：烧录、Wi-Fi 热点、I2C 扫描、IMU 104 Hz 出数和轴向、心率模块、OLED。
 
 **没有：**
@@ -112,7 +113,7 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 | 方向 | 负责人 | 第一步 | 产出放哪 |
 |---|---|---|---|
 | 固件 | Zoe Wang（传感器读数）/ 两条 ML 线（分类、计数） | 三个独立读数 sketch：IMU 100 Hz 串口输出、MAX30102 原始红外、OLED 显示 | `firmware/` |
-| 动作分类 | Hanson He | 按 `ml/workplan.md` 第 2 节：先写录数据协议，再训练按人划分评估的小模型，导出到板子 | `ml/`、`firmware/classifier/`，匿名录音放 `data/sessions/` |
+| 动作分类 | Hanson He | 协议和流程已有，下一步是定 IMU 安装方向、录前 3 人，然后 `train.py` 出第一版 | `ml/`、`firmware/classifier/`，匿名录音放 `data/sessions/` |
 | 计数与板上集成 | Julia Zhang | 按 `ml/workplan.md` 第 3 节：用录好的 CSV 离线调计数器，不等模型；再加门控和状态机上板 | `firmware/counter/`、`ml/tools/`、`tests/results/` |
 | 上位机 | Julia Zhang | 电脑端接收 Wi-Fi 数据、实时显示、导出 CSV 和会话摘要（FR-11、FR-12） | `software/` |
 | 外壳 | Eric Zhu | 从充电宝腔体和单侧头部布局开始建模，壁厚 2–3 mm，2026-11-10 前出第一版打印件 | `hardware/cad/`，新版本用新文件名 |
