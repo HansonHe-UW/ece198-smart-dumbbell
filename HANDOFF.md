@@ -28,10 +28,11 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 - 到货的 Nano ESP32、Adafruit 4517、两根 4209 线，借到的 GY-MAX30102，套件 OLED；已买的充电宝。
 - `ml/workplan.md`：动作分类和计数两条线的分工、接口草案、录数据计划和到 11-24 的时间表（2026-11-03 组内同意）。`ml/data-protocol.md` v0.1 录数据协议。
 - `ml/train/` 训练流程（切窗、31 个特征、按人划分评估、导出 C 头文件）在合成数据上跑通；`firmware/classifier/` 板上分类器编译通过、主机侧自检与 Python 一致到 1e-6，**还没在板子上跑过**，头文件是合成数据训出来的。
+- `software/data_logger.py`：上位机记录器原型（Julia，2026-11-06，PR #4）。轮询 HTTP `/status`、终端显示、追加 CSV，处理重复/乱序、断线/重连、无效心率置空。配套 `mock_server.py` 和 3 个单测。**只在 mock 上跑过**，`/status`、`/target` 接口是提案，固件侧还没有，待 Role ④ 确认。
 - `firmware/bringup/` 里 7 个测试 sketch 和中文步骤说明；`tests/results/` 里 2026-11-03 的 6 条真实测试记录：烧录、Wi-Fi 热点、I2C 扫描、IMU 104 Hz 出数和轴向、心率模块、OLED。
 
 **没有：**
-- 应用固件、上位机代码、训练脚本。有的只是 bring-up 测试 sketch。
+- 应用固件。有的只是 bring-up 测试 sketch；上位机记录器只对 mock 服务器验证过。
 - 任何验收测试（AT-01 到 AT-10）的结果。所有性能数字仍是**提议的目标**。
 - 可靠的心率数值：模块能出信号，但 2026-11-03 静止测试里算出的 bpm 比手表高 9 到 14（见第 6 节）。
 - 尺寸测量、充电宝自动关机测试、Grove 套件清单核对。
