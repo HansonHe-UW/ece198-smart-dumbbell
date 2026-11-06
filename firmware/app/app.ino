@@ -4,7 +4,7 @@
 //   -> hysteresis rep counter on the handle gyro axis, gated by session state (and by the
 //      classifier label once COUNT_GATE is 1)
 //   MAX30102 100 Hz -> beat intervals -> bpm with a validity flag (FR-08)
-//   SSD1306 OLED, one pushbutton, LED, optional buzzer.
+//   SSD1306 OLED (frame sent in 64-byte chunks between IMU ticks, see serviceOLED), one pushbutton, LED, optional buzzer.
 // Not in this sketch: Wi-Fi (FR-11/12), target sync from the computer (FR-01, TARGET is a constant).
 //
 // ONE BUTTON on D2 (replaces SW1/SW2/SW3 of 07_oled_buttons):
@@ -58,8 +58,12 @@ const int      HR_N_INT    = 8;               // beat intervals kept; bpm = 6000
 
 Adafruit_LSM6DSOX sox;
 MAX30105 hr;
-Adafruit_SSD1306 oled(128, 64, &Wire, -1);
+// clkDuring and clkAfter both 400 kHz. The library default clkAfter is 100 kHz, which it applies after
+// EVERY SSD1306 transaction, so with the defaults the whole shared bus (IMU, MAX30102) silently ran at
+// 100 kHz once the display was present (Wire.getClock() measured 2026-11-06; a 64-byte chunk took 6 ms).
+Adafruit_SSD1306 oled(128, 64, &Wire, -1, 400000UL, 400000UL);
 bool oledOk = false, hrOk = false;
+uint8_t oledAddr = 0;
 
 enum State { IDLE, RUNNING, PAUSED };
 State state = IDLE;
@@ -224,6 +228,37 @@ void serviceHR() {
   if (v != hrValid) { hrValid = v; uiDirty = true; }
 }
 
+// ---------- OLED transfer in chunks ----------
+// Adafruit's display() pushes the whole 1 KB frame in one go: ~32 ms on the shared 400 kHz bus,
+// which made 3 IMU samples late per refresh (measured 2026-11-06, S line imu_late). Instead the frame
+// is sent 64 bytes per loop, and only when the next IMU tick is at least OLED_CHUNK_US away.
+// The SSD1306 is in horizontal addressing mode (set by oled.begin), so after one address setup its
+// write pointer walks the whole frame; other devices' traffic on the bus does not disturb it.
+const int      OLED_FRAME_BYTES = 128 * 64 / 8;
+const int      OLED_CHUNK       = 64;          // bytes per I2C transaction (ESP32 Wire buffer holds 128)
+const uint32_t OLED_CHUNK_US    = 3000;        // one chunk takes ~1.5 ms at 400 kHz; margin on top
+int oledPos = -1;                              // -1: no frame in flight; else next byte offset
+
+void oledStartFrame() {                        // called by draw() after rendering into the buffer
+  Wire.beginTransmission(oledAddr);
+  Wire.write((uint8_t)0x00);                   // Co=0, D/C=0: command bytes follow
+  Wire.write((uint8_t)0x22); Wire.write((uint8_t)0); Wire.write((uint8_t)7);     // page 0..7
+  Wire.write((uint8_t)0x21); Wire.write((uint8_t)0); Wire.write((uint8_t)127);   // column 0..127
+  Wire.endTransmission();
+  oledPos = 0;
+}
+
+void serviceOLED() {
+  if (!oledOk || oledPos < 0) return;
+  if ((int32_t)(imuNext - micros()) < (int32_t)OLED_CHUNK_US) return;   // IMU tick is near: wait
+  Wire.beginTransmission(oledAddr);
+  Wire.write((uint8_t)0x40);                   // Co=0, D/C=1: data bytes follow
+  Wire.write(oled.getBuffer() + oledPos, OLED_CHUNK);
+  Wire.endTransmission();
+  oledPos += OLED_CHUNK;
+  if (oledPos >= OLED_FRAME_BYTES) oledPos = -1;
+}
+
 // ---------- display ----------
 void draw() {
   if (!oledOk) return;
@@ -258,7 +293,7 @@ void draw() {
     oled.printf("%3lus", (unsigned long)((now - sessionStartMs) / 1000));
   }
   oled.invertDisplay(state != IDLE && reps >= TARGET);   // FR-10: unmistakable at target, keeps counting
-  oled.display();
+  oledStartFrame();
 }
 
 // ---------- session ----------
@@ -293,7 +328,6 @@ void setup() {
 
   for (int j = 0; j < CLF_N_CLASSES; j++) if (strcmp(CLF_CLASSES[j], "curl") == 0) curlIdx = j;
 
-  uint8_t oledAddr = 0;
   for (uint8_t a : {0x3C, 0x3D}) { Wire.beginTransmission(a); if (Wire.endTransmission() == 0) { oledAddr = a; break; } }
   oledOk = oledAddr && oled.begin(SSD1306_SWITCHCAPVCC, oledAddr);
   if (!oledOk) Serial.println("WARN: no SSD1306 at 0x3C/0x3D; running without display");
@@ -329,12 +363,13 @@ void loop() {
   BtnEvent e = pollButton();
   if (e == BTN_SHORT) onShort(); else if (e == BTN_LONG) onLong();
   serviceCue();
-  uint32_t el = micros() - t0;
-  if (el > loopMaxUs) loopMaxUs = el;
 
   static uint32_t lastDraw = 0, lastH = 0;
   uint32_t now = millis();
-  if (uiDirty || now - lastDraw >= 250) { draw(); lastDraw = now; uiDirty = false; }
+  if ((uiDirty || now - lastDraw >= 250) && oledPos < 0) { draw(); lastDraw = now; uiDirty = false; }
+  serviceOLED();
+  uint32_t el = micros() - t0;               // includes draw and the OLED chunk (it did not before)
+  if (el > loopMaxUs) loopMaxUs = el;
   if (hrOk && now - lastH >= 1000) {
     lastH = now;
     Serial.printf("H,%lu,%.0f,%d,%ld\n", (unsigned long)now, hrValid ? bpm : 0.0f, hrValid ? 1 : 0, lastIr);

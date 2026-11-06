@@ -1,6 +1,6 @@
 # app — 单按钮整合固件 v0
 
-状态 2026-11-06：**编译通过**（`arduino:esp32:nano_nora`，Flash 339 kB / 10 %，RAM 41.6 kB / 12 %），**还没在板子上跑过**。把 bring-up 里验证过的几块（04 IMU、05 心率、07 OLED、`firmware/classifier`）合到一个非阻塞 loop 里，按钮改成一个。Wi-Fi 不在这里（FR-11、FR-12 是另一条线）。
+状态 2026-11-06：编译通过（`arduino:esp32:nano_nora`，Flash 339 kB / 10 %，RAM 41.6 kB / 12 %），**已上板**：四个模块全部扫到，IMU 104 Hz 无丢样，按钮状态机可用；弯举计数、LED、手指心率还没测（见 `tests/results/2026-11-06_app-v0-first-run.md`）。把 bring-up 里验证过的几块（04 IMU、05 心率、07 OLED、`firmware/classifier`）合到一个非阻塞 loop 里，按钮改成一个。Wi-Fi 不在这里（FR-11、FR-12 是另一条线）。
 
 ## 操作：一个按钮（D2，另一脚接 GND，内部上拉）
 
@@ -37,8 +37,9 @@
 - **IMU**：104 Hz 定时读，和 `firmware/classifier` 一样进 208 点环形缓冲，每 104 个样本（1 s）算一次 31 个特征、跑一次模型，串口打 `C,t,label,conf,us`。
 - **计数器**（占位实现，归线 2 / Julia）：对 `CURL_AXIS` 那一列做一阶低通（α = 0.2），一次完整动作 = 角速度先超过 ±60 deg/s、再反向超过 ∓60 deg/s、最后回落到 25 deg/s 以内，整段 0.6 ～ 5 s。太快当晃动，太慢当停住，都不算。只做一半不算。参数全是猜的，要用录好的数据离线调（workplan 线 2 第 1 步）。
 - **心率**：MAX30102 400 sps 平均 4 = 100 Hz 出数（bring-up 05 的结论：25 Hz 时 SparkFun 的 `checkForBeat` 几乎不工作）。每个 loop 最多处理 8 个 FIFO 样本，避免拖慢 IMU。记录最近 9 次心跳时刻，取 8 个间隔的**中位数**算 bpm。**有效**的条件：手指在（IR > 50000）、有效间隔 ≥ 4 个、最近一次心跳在 3 s 内；否则显示 `HR --`（手指不在）或 `HR ...`（手指在但还没稳），并且串口 `H` 行 `valid=0`、`bpm=0`，不拿旧值冒充（FR-08）。bring-up 05 里静止心率仍比手表高 9 ～ 14 bpm，这个 sketch 没有解决那个问题，只是把有效性判断接上了。
-- **屏幕**：第一行状态 + 心率，中间大号次数 / 目标，底行分类标签和置信度 + 计时。每 250 ms 或有事件时刷新。
-- **串口**：所有行都以类型字母开头，每 5 s 一条 `S` 统计，和 06 一样用来验证 FR-13（`imu_hz` 103 ～ 105、`imu_late` 不涨、`loop_max_us` 远小于 9600）。
+- **屏幕**：第一行状态 + 心率，中间大号次数 / 目标，底行分类标签和置信度 + 计时。每 250 ms 或有事件时重画。**发送是分块的**（`serviceOLED()`）：Adafruit 的 `display()` 一次推 1 KB，在总线上占 32 ms，实测每刷一次 IMU 迟 3 个采样周期、补读出 3 个重复样本（每秒 4 次刷屏 → 约 11 % 的样本是重复值）。现在每次 loop 只发 64 字节，而且只在离下一次 IMU 采样还有 3 ms 以上时才发；一帧没发完不重画。改完 `imu_late` 为 0、`imu_dt_max` 10 ms，和不接屏一样。
+- **I2C 时钟**：`Adafruit_SSD1306` 构造函数默认 `clkAfter = 100 kHz`，每次对屏操作后把整条总线降到 100 kHz，IMU 和 MAX30102 也跟着慢（`Wire.getClock()` 实测 100000，64 字节分块要 6 ms）。构造时把 `clkDuring`、`clkAfter` 都给 400000 才真的是 400 kHz。
+- **串口**：所有行都以类型字母开头，每 5 s 一条 `S` 统计，和 06 一样用来验证 FR-13（`imu_hz` 103 ～ 105、`imu_late` 不涨、`imu_dt_max_ms` 接近 10、`loop_max_us` 小于 9600）。`loop_max_us` 现在包含重画和分块发送（v0 第一版不包含，所以看不出刷屏阻塞；判断阻塞看 `imu_late` 和 `imu_dt_max_ms`）。
 
 ## 和 `firmware/classifier` 的关系
 
@@ -61,7 +62,7 @@ arduino-cli upload --fqbn arduino:esp32:nano_nora -p /dev/cu.usbmodemXXXX firmwa
 上板第一次要看的东西，按顺序：
 
 1. 串口第一行 `# app v0: ... oled 1 hr 1`。`oled 0` 或 `hr 0` 说明那个模块没扫到，先跑 `03_i2c_scan`。
-2. 不碰按钮，看 `S` 行：`imu_hz` 103 ～ 105，`imu_late` 为 0。
+2. 不碰按钮，看 `S` 行：`imu_hz` 103 ～ 105，`imu_late` 为 0，`imu_dt_max_ms` 10 ～ 11。（2026-11-06 实测：104.0 / 0 / 10，`loop_max_us` 约 6400，`hr_n` 约 498。）
 3. 短按：屏幕 `IDLE` → `RUN`，串口 `EVENT,...,start`。再短按 `PAUSE`，再短按 `RUN`。按住 1.5 s：`DONE`，串口 `end`。按 1 s 松开：什么都不发生。
 4. `RUN` 状态下做弯举：每次有 `R,` 行、LED 闪、次数加一。晃一下、只举一半：不加。暂停时做：不加。
 5. 手指放到 MAX30102：`HR --` → `HR ...` → 约 10 s 后出数字；拿开 3 s 内回到 `HR --`。

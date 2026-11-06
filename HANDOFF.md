@@ -32,7 +32,7 @@ UWaterloo ECE 198 Group 57（Hanson He、Eric Zhu、Zoe Wang、Julia Zhang）为
 - `firmware/bringup/` 里 7 个测试 sketch 和中文步骤说明；`tests/results/` 里 2026-11-03 的 6 条真实测试记录：烧录、Wi-Fi 热点、I2C 扫描、IMU 104 Hz 出数和轴向、心率模块、OLED。
 
 **没有：**
-- 应用固件只有一个编译通过、没上过板的整合草稿（`firmware/app/`，2026-11-06，单按钮、IMU+分类器+占位计数器+心率+OLED，无 Wi-Fi）；上位机记录器只对 mock 服务器验证过。
+- 完整的应用固件。`firmware/app/` 是整合草稿（2026-11-06，单按钮、IMU+分类器+占位计数器+心率+OLED，无 Wi-Fi），已上板：四个模块扫到、IMU 104 Hz 无丢样、按钮可用；弯举计数、LED、手指心率未测（`tests/results/2026-11-06_app-v0-first-run.md`）。上位机记录器只对 mock 服务器验证过。
 - 任何验收测试（AT-01 到 AT-10）的结果。所有性能数字仍是**提议的目标**。
 - 可靠的心率数值：模块能出信号，但 2026-11-03 静止测试里算出的 bpm 比手表高 9 到 14（见第 6 节）。
 - 尺寸测量、充电宝自动关机测试、Grove 套件清单核对。

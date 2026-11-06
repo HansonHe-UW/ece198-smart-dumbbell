@@ -1,6 +1,6 @@
 # Firmware
 
-Status 2026-11-06: first integrated sketch in [app/](app/README.md): one button (short = start / pause / resume, long = end), LSM6DSOX at 104 Hz into the classifier, a placeholder rep counter, MAX30102 heart rate with a validity flag, OLED, LED, optional buzzer. Compiles (Flash 10 %, RAM 12 %), **not yet run on the board**. No Wi-Fi yet. Board bring-up sketches and the test procedure are in [bringup/](bringup/README.md); the on-device model lives in [classifier/](classifier/README.md).
+Status 2026-11-06: first integrated sketch in [app/](app/README.md): one button (short = start / pause / resume, long = end), LSM6DSOX at 104 Hz into the classifier, a placeholder rep counter, MAX30102 heart rate with a validity flag, OLED, LED, optional buzzer. Compiles (Flash 10 %, RAM 12 %) and ran on the board on 2026-11-06: all four I2C modules found, IMU at 104 Hz with no late samples while the OLED refreshes, button state machine works; rep counting, LED and finger heart rate not yet exercised (see `tests/results/2026-11-06_app-v0-first-run.md`). No Wi-Fi yet. Board bring-up sketches and the test procedure are in [bringup/](bringup/README.md); the on-device model lives in [classifier/](classifier/README.md).
 
 Planned target: Arduino Nano ESP32. Implement sensor acquisition, non-blocking scheduling, local ML inference, complete-cycle counting, OLED/button interaction, heart-rate validity handling and a local Wi-Fi/HTTP interface.
 
