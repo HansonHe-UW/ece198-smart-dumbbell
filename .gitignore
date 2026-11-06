@@ -42,3 +42,6 @@ data/private/
 data/session_logs/
 logs/
 ml/checkpoints/
+
+# Computer logger output (software/data_logger.py)
+software/*.csv

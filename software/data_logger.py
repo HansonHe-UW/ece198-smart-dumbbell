@@ -130,7 +130,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Smart Dumbbell prototype data logger")
     parser.add_argument("--url", default="http://127.0.0.1:5000", help="HTTP server base URL")
     parser.add_argument("--target", type=int, default=10, help="Target repetition count")
-    parser.add_argument("--csv", type=Path, default=Path("software/session_log.csv"))
+    parser.add_argument("--csv", type=Path, default=Path("data/session_logs/session_log.csv"))
     parser.add_argument("--interval", type=float, default=1.0, help="Seconds between requests")
     parser.add_argument("--timeout", type=float, default=2.0, help="HTTP request timeout in seconds")
     parser.add_argument("--max-polls", type=int, default=0, help="0 means continue until Ctrl+C")

@@ -24,7 +24,7 @@ In **terminal 2** (also from repository root):
 
 ```bash
 source .venv/bin/activate
-python3 software/data_logger.py --url http://127.0.0.1:5000 --target 10 --csv software/session_log.csv
+python3 software/data_logger.py --url http://127.0.0.1:5000 --target 10 --csv data/session_logs/session_log.csv
 ```
 
 The program displays session state, repetitions and heart rate once per second. Stop with **Ctrl+C**. Open the CSV in VS Code. For a short run, add `--max-polls 10`.
@@ -35,7 +35,17 @@ Stop the server in terminal 1 using Ctrl+C; the client will record one `disconne
 
 ## CSV
 
-`event=sample` is a newly accepted measurement. `duplicate_or_out_of_order`, `sequence_gap`, `disconnected`, `reconnected` and `new_session` are diagnostic events, not new sensor measurements. `received_at_utc` is computer receive time; `elapsed_ms` and `sequence` are preserved from the simulated device. Invalid BPM is blank in the CSV, with `heart_rate_valid=False`. The logger appends to the chosen path; choose a fresh path for each test to avoid combining runs inadvertently.
+`event=sample` is a newly accepted measurement. `duplicate_or_out_of_order`, `sequence_gap`, `disconnected`, `reconnected` and `new_session` are diagnostic events, not new sensor measurements. `received_at_utc` is computer receive time; `elapsed_ms` and `sequence` are preserved from the simulated device. Invalid BPM is blank in the CSV, with `heart_rate_valid=False`. The logger appends to the chosen path; choose a fresh path for each test to avoid combining runs inadvertently. Keep logs under `data/session_logs/` (ignored by git); do not write them into `software/`.
+
+## Unit test
+
+From the repository root, with the venv active:
+
+```bash
+python3 -m unittest tests.test_data_logger
+```
+
+This checks `SessionLogger` only (duplicate/gap detection, invalid heart rate, disconnect/new-session events). It does not exercise the HTTP loop or the mock server.
 
 ## Limitations / next actions
 
