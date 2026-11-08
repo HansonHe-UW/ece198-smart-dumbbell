@@ -83,7 +83,7 @@ add("""<defs>
 </defs>""")
 add(f"<rect width='{W}' height='{H}' fill='white'/>")
 text(24, 34, "Smart dumbbell - layout proposal v0.2 (2026-11-08): top view, section A-A, sections B-B and C-C", 20, weight="bold")
-text(24, 56, "One-sided layout: power bank and all boards in the right head, steel-washer ballast in the left head, pulse sensor in the top of the grip. Hex section as CAD v0.1 (100 across corners, 86.6 across flats); head depth 70 -> 110 to fit the power bank. Not a print file; sizes marked * are catalogue values, measure the parts.", 11.5, fill="#444")
+text(24, 56, "One-sided layout: power bank and all boards in the right head, steel balance washers in the left head, pulse sensor in the top of the grip. Hex section as CAD v0.1 (100 across corners, 86.6 across flats); head depth 70 -> 110 to fit the power bank. Not a print file; sizes marked * are catalogue values, measure the parts.", 11.5, fill="#444")
 text(24, 74, "Lines: solid = visible edge; dashed = hidden edge; hatched = printed part cut by the section; dense hatch = steel; colour blocks = component envelopes (orange power bank, green PCB, blue display, red pulse sensor, purple wire).", 11.5, fill="#444")
 
 # =====================================================================
@@ -222,7 +222,7 @@ for nx in (CAP, WASH["x0"] + WASH["n"] * WASH["t"]):   # M10 nuts, 8 thick, 17 A
     x0, y0 = A(nx, 8.5); rect(x0, y0, S * 8, S * 17, STEEL, "#333", 1)
 x0, y0 = A(-4, 8.5); rect(x0, y0, S * 4, S * 17, STEEL, "#333", 1)   # outside nut on the cap (countersink not drawn)
 text(A(52, -30)[0], A(52, -30)[1], "M10 rod + 50x3 washers, about 44 g each", 10.5, "middle", fill="#333")
-text(A(52, -36)[0], A(52, -36)[1], "8 washers about 350 g; count sets ballast", 10.5, "middle", fill="#333")
+text(A(52, -36)[0], A(52, -36)[1], "8 washers about 350 g; count set by balance, total <= 1 kg", 10.5, "middle", fill="#333")
 # cap screws, hidden (bosses are off the plane)
 for hx, sgn in ((CAP, -1), (TOTAL - CAP, 1)):
     for yy in (33, -33):
@@ -343,7 +343,7 @@ text(NX, NY, "Component envelopes (mm)", 13, weight="bold")
 rows = [("Arduino Nano ESP32", "45 x 18 x 12 (in female headers)", "official size"), ("Adafruit 4517 IMU", "25.4 × 17.8 × 5", "hardware.md; connectors not measured *"),
         ("Perfboard hub", "50 × 40 × 1.6", "proposal, not bought"), ("OLED 0.96\" SSD1306", "27 x 28 x 4, active area 22 x 11", "typical module value *"),
         ("GY-MAX30102", "21 × 15 × 3.5", "typical module value *"), ("INIU SnapGo P81", "80 x 38 x 29, 115 g", "decisions.md"),
-        ("Tact switch SW1", "12 x 12 x 7.3 + cap", "kit part *"), ("Washers + M10 rod", "50 x 10.5 x 3, about 44 g each", "assumed; count per mass target")]
+        ("Tact switch SW1", "12 x 12 x 7.3 + cap", "kit part *"), ("Washers + M10 rod", "50 x 10.5 x 3, about 44 g each", "assumed; count per balance and the 1 kg limit")]
 for i, (a, b, c) in enumerate(rows):
     y = NY + 22 + 17 * i
     text(NX, y, a, 10.5, weight="bold"); text(NX + 190, y, b, 10.5); text(NX + 420, y, c, 10.5, fill="#555")
@@ -359,7 +359,7 @@ notes = [
     "   Left head about 180 g heavier than the right. 4 washers balance the heads at about 0.8 kg total; 12 washers give 1.15 kg but 360 g off balance. No room for washers in the right head: a trade-off to decide.",
     "5. Pulse module in the top of the grip, slightly left of centre, chip flush, recess blocks light. Finger contact not yet verified (do not freeze before the AT heart-rate test); may move to the side of the grip.",
     "6. Not designed: grip-to-head fastening, bank charge port / button / display openings, cable retention, OLED and button boss sizes, print tolerances, cap sealing.",
-    "7. Sources: docs/hardware.md bank cavity >= 86 x 44 x 35; HANDOFF 2026-11-06 one-sided heads, washer ballast, 1-1.5 kg, walls 2-3. The enclosure is Eric's; this drawing is an input, not a replacement.",
+    "7. Sources: docs/hardware.md bank cavity >= 86 x 44 x 35; docs/specification.md total mass <= 1 kg, no training ballast, balance by measured masses; HANDOFF 2026-11-06 one-sided heads, walls 2-3. The enclosure is Eric's; this drawing is an input, not a replacement.",
 ]
 def wrap(t, n=150):
     if len(t) <= n: return [t]

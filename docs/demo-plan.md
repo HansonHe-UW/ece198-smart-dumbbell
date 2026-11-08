@@ -8,7 +8,7 @@ From the project overview PDF and the course page:
 
 | Date | Event | Course wording, summarised |
 |---|---|---|
-| **9–11 Nov (time to be announced; ours is Mon 10 Nov 09:10)** | In-person project update presentation | 5 minutes of progress plus 5 minutes of Q&A with the teaching team. **Bring the prototype**; a laptop or tablet may be used. "The teaching team will be looking for progress, but we aren't expecting a finished project." Also a chance to ask questions. |
+| **9–11 Nov (time to be announced; ours is Tue 10 Nov 09:10)** | In-person project update presentation | 7 minutes of progress plus 8 minutes of Q&A with the teaching team per the instructor announcement (the project overview PDF said 5 + 5). **Bring the prototype**; a laptop or tablet may be used. "The teaching team will be looking for progress, but we aren't expecting a finished project." Also a chance to ask questions. |
 | **23 Nov (8-stream) / 25 Nov (4-stream)** | Final project symposium | Demonstrate the prototype to stakeholders, the teaching team and the other groups, in the Ideas Clinic (PSE-1427). "More details will be available as we get closer." We plan for 25 Nov. |
 | 8 Dec | Individual term reflection | Individual, outside this file. |
 
@@ -28,7 +28,7 @@ One complete table-side run, under 90 seconds, repeatable back to back:
 2. One button press starts a session; the display shows `RUN 0/10`.
 3. Ten curls; the count follows; at 10 the display inverts (FR-10) and keeps counting.
 4. A shake, or picking the dumbbell up and putting it down, **does not count** (FR-06). If this is not reliable, leave it out of the live run but be ready to explain it.
-5. A finger on the grip sensor produces a heart-rate value within a few seconds; removing it shows `HR --` within 3 s (FR-08, AT-06).
+5. A finger on the grip sensor produces a heart-rate value within a few seconds; removing it shows `HR --` within 2 s (FR-08, AT-06). The app firmware currently clears after 3 s (`HR_STALE_MS 3000`); set it to 2000 ms before running AT-06.
 6. A long press ends the session; the laptop next to the device shows the set's count and duration and a CSV is written (FR-11, FR-12).
 
 Technical floor behind that: enclosure printed and assembled; the rep counter in `firmware/app` reliable on real curls (10 ± 1); Wi-Fi access point + `/status` endpoint + `software/data_logger.py` working together (or the BLE path once device-side firmware exists); the power bank runs the device for 10 minutes without switching itself off.
@@ -80,7 +80,7 @@ Hard constraint from `ml/workplan.md`: **no model or parameter changes after 24 
 | Julia | `ml/tools/offline_counter.py` counts reps from the recorded CSVs | Within ±1 on three curl recordings |
 | Zoe | Run the power bank with Wi-Fi + OLED for 10 minutes and watch for auto-shutdown; borrow a heart-rate reference device | Record in `tests/results/` |
 | Eric | First print from `hardware/layout/layout-v0.2.png` (right head and grip first) | Printed part in hand |
-| All | **Update presentation, 5 minutes**: `presentation/Smart_Dumbbell_Update_2026-11-10.pptx`, script in `docs/update-presentation-2026-11-10.md` | Rehearsed once |
+| All | **Update presentation, 7 minutes + 8 minutes Q&A**: `presentation/Smart_Dumbbell_Update_2026-11-10.pptx`, script in `docs/update-presentation-2026-11-10.md` | Rehearsed once |
 
 Three questions for the teaching team at the update: (1) can the in-motion heart-rate requirement (FR-07 / AT-04 / AT-05) be restated as "in-motion readings when signal quality allows, guaranteed readings between sets"; (2) symposium format, time per visitor, table and power; (3) is a budget ceiling of CAD 200 acceptable.
 
@@ -135,4 +135,4 @@ Placeholder. The six tier-1 steps are the draft. The final version states who op
 1. Who presents which slide on 10 Nov, and whether the bench rig comes along (depends on the rewiring being finished).
 2. Whether FR-07 (in-motion heart rate) is restated, after asking the teaching team.
 3. Buzzer or no buzzer, one button confirmed: the firmware is single-button, the specification and READMEs still say three.
-4. Enclosure per layout v0.2 (110 mm heads, 360 mm overall) or the v0.1 size; how to trade ballast against balance (see `hardware/layout/layout-v0.2.png`, note 4).
+4. Enclosure per layout v0.2 (110 mm heads, 360 mm overall) or the v0.1 size; how many balance washers fit under the 1 kg limit (see `hardware/layout/layout-v0.2.png`, note 4).
