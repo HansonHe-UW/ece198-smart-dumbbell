@@ -1,13 +1,22 @@
 # Smart dumbbell layout proposal v0.2: top view, longitudinal section A-A, transverse sections B-B and C-C.
 # Run: python3 hardware/layout/gen_layout.py hardware/layout/layout-v0.2.svg
 # Units in the geometry are millimetres; the page is pixels. Component sizes marked * in the notes are catalogue values, not measured.
-import sys, math
+import sys, math, os, re
+LANG = os.environ.get("LANG_FIG", "zh")        # LANG_FIG=en python3 gen_layout.py out.svg
+TR = {}                                        # Chinese -> English, filled below
+MISSING = set()
 W, H = 1800, 1400
 F = "PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif"
 out = []
 def add(s): out.append(s)
 def esc(s): return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+def tr(s):
+    if LANG != "en": return s
+    if s in TR: return TR[s]
+    if re.search(r"[\u4e00-\u9fff]", s): MISSING.add(s)
+    return s
 def text(x, y, s, size=12, anchor="start", weight="normal", fill="#111", rot=None):
+    s = tr(s)
     r = f" transform='rotate({rot} {x} {y})'" if rot is not None else ""
     add(f"<text x='{x:.1f}' y='{y:.1f}' font-size='{size}' text-anchor='{anchor}' font-weight='{weight}' fill='{fill}' font-family='{F}'{r}>{esc(s)}</text>")
 def line(x1, y1, x2, y2, stroke="#111", w=1.2, dash=None):
@@ -71,6 +80,50 @@ BTN = dict(x=RHX + 35.0, z=0.0, body=12.0, h=7.3, cap_d=6.0)
 LEDP = dict(x=RHX + 47.0, z=-10.0, d=5.0)
 WASH = dict(x0=8.0, n=8, t=3.0, od=50.0, idd=10.5)   # left head, on an M10 rod from the cap
 SENS = dict(x=TOTAL / 2 - 5.0, L=21.0, w=15.0, t=1.6, win_L=10.0, win_w=8.0, rec_L=22.0, rec_w=16.0)
+
+
+TR.update({
+"Smart dumbbell - 布局提案 v0.2（2026-11-08）  顶视图 + 纵剖 A-A + 横剖 B-B、C-C": "Smart dumbbell - layout proposal v0.2 (2026-11-08): top view, section A-A, sections B-B and C-C",
+"单侧头部布局：右头放充电宝和全部电路板，左头放钢垫圈配重，心率模块在握把顶部。六角截面沿用 CAD v0.1（对角 100、对边 86.6），头部深度 70 改 110 以放下充电宝。不是打印文件，带 * 的尺寸要量实物。": "One-sided layout: power bank and all boards in the right head, steel-washer ballast in the left head, pulse sensor in the top of the grip. Hex section as CAD v0.1 (100 across corners, 86.6 across flats); head depth 70 -> 110 to fit the power bank. Not a print file; sizes marked * are catalogue values, measure the parts.",
+"线型：实线 = 可见轮廓；虚线 = 隐藏轮廓；斜线填充 = 剖切到的打印件；密斜线 = 钢件；色块 = 元件包络（橙 充电宝、绿 电路板、蓝 显示屏、红 心率传感器、紫 导线）。": "Lines: solid = visible edge; dashed = hidden edge; hatched = printed part cut by the section; dense hatch = steel; colour blocks = component envelopes (orange power bank, green PCB, blue display, red pulse sensor, purple wire).",
+"顶视图  2.5 px/mm": "Top view  2.5 px/mm",
+"140（露出握把）": "140 (exposed grip)", "360 总长（CAD v0.1 为 280）": "360 overall (CAD v0.1: 280)", "50 顶面": "50 top flat",
+"钢垫圈 ×8 在 M10 螺杆上（隐藏）": "8 steel washers on an M10 rod (hidden)", "心率窗口 10×8（MAX30102 在孔下）": "Pulse window 10x8 (MAX30102 below)",
+"SW1 单按钮，Ø6 帽": "SW1 button, 6 mm cap", "LED Ø5": "LED 5 mm", "4517 IMU（X 轴沿握把）": "4517 IMU, X along the grip",
+"OLED 窗口 24×13，屏在下方": "OLED window 24x13, display below", "INIU P81 充电宝 80×38×29（隐藏）": "INIU P81 power bank 80x38x29 (hidden)",
+"剖面 A-A  过握把轴线的竖直面，向前看  2.5 px/mm": "Section A-A  through the grip axis  2.5 px/mm",
+"INIU SnapGo P81  80 × 29（宽 38）": "INIU SnapGo P81  80 x 29 (38 wide)", "Nano ESP32 45×18，插在排母上": "Nano ESP32 45x18 in female headers",
+"M10 螺杆 + 大垫圈 Ø50×3，每片约 44 g": "M10 rod + 50x3 washers, about 44 g each", "8 片约 350 g；片数决定配重和左右平衡": "8 washers about 350 g; count sets ballast",
+"86.6": "86.6", "Ø34": "Ø34", "Ø24": "Ø24", "104.5 腔深": "104.5 cavity", "80 充电宝": "80 power bank", "10": "10", "14.5 线弯": "14.5 cable bend", "3 端盖": "3 end cap",
+"2.5 壁": "2.5 wall", "24": "24", "29": "29", "7.1 屏到外表面": "7.1 display to outer face",
+"GY-MAX30102 21×15，从握把孔内扣入，芯片与表面齐平": "GY-MAX30102 21x15 clipped in from the bore, chip flush",
+"4 根线走握把内孔到右头集线板（紫虚线）": "4 wires run through the grip bore to the hub board (purple dashed)",
+"集线洞洞板 50×40×1.6，焊排母；半长面包板 83×55 放不进": "Perfboard hub 50x40, female headers (half breadboard 83x55 does not fit)",
+"OLED 0.96\" 27×28，两根柱子吊在顶壁下": "OLED 0.96in 27x28 on two posts under the top wall", "SW1 轻触开关 12×12，小板架在顶壁下": "SW1 tact switch 12x12 on a small board under the top wall",
+"自带 USB-C 线弯上来插 Nano": "Built-in USB-C cable bends up into the Nano", "端盖上开充电宝充电口、电量键（位置看实物）": "End cap: openings for the bank's charge port and button (positions from the real part)",
+"握把插入头部 10，Ø34.4 孔，径向 M3 螺钉固定（未画）": "Grip enters the head 10 mm, 34.4 hole, radial M3 screw (not drawn)",
+"剖面 B-B  右头，过 OLED 和 Nano，向端盖看  3.4 px/mm": "Section B-B  right head, OLED and Nano  3.4 px/mm",
+"P81  38 × 29": "P81  38 x 29", "Nano ESP32（剖到）": "Nano ESP32 (cut)", "充电宝线": "cable", "心率线": "pulse wires", "100": "100", "38": "38", "约 30 空隙": "about 30 clearance", "28": "28",
+"顶住板子的斜壁台阶": "Ledge on the slanted wall carries the board", "端盖螺柱 Ø10，M3 ×4（在剖面后方）": "End-cap bosses 10 mm, 4x M3 (behind the section)",
+"剖面 C-C  握把过心率模块处  5 px/mm": "Section C-C  grip at the pulse sensor  5 px/mm", "16 内槽": "16 recess", "8 窗": "8 window", "5 壁": "5 wall",
+"MAX30102 芯片 5.6×3.3，顶面与握把外表面齐平": "MAX30102 chip 5.6x3.3, top flush with the grip surface", "排针折平后焊线，不占径向空间": "Header pins bent flat and soldered, no radial space",
+"卡口留板，内槽挡光": "Snap lips hold the board; the recess blocks light",
+"元件包络（mm）": "Component envelopes (mm)", "45 × 18 × 12（含排母插接）": "45 x 18 x 12 (in female headers)", "官方尺寸": "official size",
+"docs/hardware.md，连接器未量 *": "hardware.md; connectors not measured *", "集线洞洞板（替代面包板）": "Perfboard hub", "提案，未买": "proposal, not bought",
+"27 × 28 × 4，显示区 22 × 11": "27 x 28 x 4, active area 22 x 11", "常见模块值 *": "typical module value *", "80 × 38 × 29，115 g": "80 x 38 x 29, 115 g",
+"轻触开关 SW1": "Tact switch SW1", "12 × 12 × 7.3 + 帽": "12 x 12 x 7.3 + cap", "套件 *": "kit part *", "大垫圈 + M10 螺杆": "Washers + M10 rod",
+"Ø50 × Ø10.5 × 3，约 44 g/片": "50 x 10.5 x 3, about 44 g each", "假设，按 1 kg 目标选片数": "assumed; count per mass target",
+"* 未量实物；量完改脚本顶部的字典重新生成。": "* not measured; update the dictionaries at the top of the script and regenerate.",
+"和 CAD v0.1 的差别、估算、没做的": "Changes from CAD v0.1, estimates, not done",
+"1. 头部深度 70 → 110：充电宝 80 沿轴放 + 握把插入 10 + 线弯 14.5 + 壁 2.5 + 端盖 3。总长 280 → 360。截面不变，仍可讨论 80 mm 宽候选。": "1. Head depth 70 -> 110: bank 80 along the axis + grip insertion 10 + cable bend 14.5 + wall 2.5 + cap 3. Overall 280 -> 360. Section unchanged; the 80 mm width candidate is still open.",
+"2. 按钮 3 → 1，蜂鸣器去掉（图上无）。OLED 窗、按钮、LED 全在右头顶面；端盖不再开 Nano 的 USB 口，Nano 由充电宝自带线供电，刷固件要开端盖换线。": "2. Buttons 3 -> 1, buzzer dropped. OLED window, button and LED all on the right head's top flat; no USB opening for the Nano in the cap, the bank's cable powers it, flashing means opening the cap.",
+"3. 半长面包板 83 × 55 × 10 任何方向都放不进 110 深的头（腔深 104.5、六角内宽最大 94）；用洞洞板焊排母做集线板，Nano 和 4517 插上去。": "3. A half breadboard 83 x 55 x 10 fits no way into a 110 head (cavity 104.5, max inner width 94); a perfboard with female headers is the hub, Nano and 4517 plug into it.",
+"4. 质量估算（PLA 1.24 g/cm³，壁 2.5）：两头壳约 300 g，握把约 95 g，加强约 30 g；充电宝 115 g，板子约 60 g；垫圈 8 片 350 g → 约 0.95 kg。": "4. Mass estimate (PLA 1.24 g/cm3, 2.5 walls): two heads about 300 g, grip about 95 g, ribs about 30 g; bank 115 g, boards about 60 g; 8 washers 350 g -> about 0.95 kg.",
+"   左头比右头重约 180 g。只放 4 片垫圈左右平衡但总重约 0.8 kg；放 12 片到 1.15 kg 则偏 360 g。右头塞不下垫圈，这是要定的取舍。": "   Left head about 180 g heavier than the right. 4 washers balance the heads at about 0.8 kg total; 12 washers give 1.15 kg but 360 g off balance. No room for washers in the right head: a trade-off to decide.",
+"5. 心率模块在握把顶部正中偏左，芯片与表面齐平、内槽挡光。手指实际接触面还没验证（AT 心率测试前别冻结位置），可能要转到握把侧面。": "5. Pulse module in the top of the grip, slightly left of centre, chip flush, recess blocks light. Finger contact not yet verified (do not freeze before the AT heart-rate test); may move to the side of the grip.",
+"6. 没设计：握把与头的固定件、充电宝充电口/按键/电量显示开孔（看实物）、线缆固定、OLED 和按钮的螺柱尺寸、打印公差、端盖密封。": "6. Not designed: grip-to-head fastening, bank charge port / button / display openings, cable retention, OLED and button boss sizes, print tolerances, cap sealing.",
+"7. 来源：docs/hardware.md 充电宝腔体 ≥ 86 × 44 × 35；HANDOFF 2026-11-06 单侧头部、垫圈配重、1–1.5 kg、壁厚 2–3。外壳归 Eric，本图是输入不是替代。": "7. Sources: docs/hardware.md bank cavity >= 86 x 44 x 35; HANDOFF 2026-11-06 one-sided heads, washer ballast, 1-1.5 kg, walls 2-3. The enclosure is Eric's; this drawing is an input, not a replacement.",
+})
 
 add(f"<svg xmlns='http://www.w3.org/2000/svg' width='{W}' height='{H}' viewBox='0 0 {W} {H}'>")
 add("""<defs>
@@ -246,7 +299,7 @@ dim_v(A(0, hh)[1], A(0, OLED["y0"])[1], A(RHX + HEAD + 14, 0)[0], "7.1 屏到外
 # labels on A-A
 label(*A(SENS["x"], GID / 2 + 4.3), *A(HEAD + 4, 42), "GY-MAX30102 21×15，从握把孔内扣入，芯片与表面齐平", 10.5)
 label(*A(SENS["x"] + 20, -6), *A(SENS["x"] + 20, -50), "4 根线走握把内孔到右头集线板（紫虚线）", 10.5)
-label(*A(HUB["x0"] + 4, HUB["y0"] + 0.8), *A(RHX - 22, -26), "集线洞洞板 50×40×1.6，焊排母；半长面包板 83×55 放不进", 10.5, "end")
+label(*A(HUB["x0"] + 4, HUB["y0"] + 0.8), *A(RHX + HEAD + 14, -62), "集线洞洞板 50×40×1.6，焊排母；半长面包板 83×55 放不进", 10.5)
 label(*A(OLED["x0"] + 20, OLED["y0"] + 2.4), *A(OLED["x0"] + 40, 58), "OLED 0.96\" 27×28，两根柱子吊在顶壁下", 10.5)
 label(*A(BTN["x"], hh + 4), *A(BTN["x"] - 40, 66), "SW1 轻触开关 12×12，小板架在顶壁下", 10.5, "end")
 label(*A(BANK["x0"] + 76, BANK["y0"] + BANK["h"] + 6), *A(BANK["x0"] + 96, 24), "自带 USB-C 线弯上来插 Nano", 10.5)
@@ -329,7 +382,7 @@ dim_h(C(-SENS["win_w"] / 2, 0)[0], C(SENS["win_w"] / 2, 0)[0], C(0, GOD / 2)[1] 
 dim_v(C(0, GOD / 2)[1], C(0, GID / 2)[1], C(GOD / 2, 0)[0] + 22, "5 壁", left=False)
 label(*C(0, GID / 2 + 4.2), *C(-26, 26), "MAX30102 芯片 5.6×3.3，顶面与握把外表面齐平", 10, "end")
 label(*C(-5, GID / 2 + 1.2), *C(-26, 2), "排针折平后焊线，不占径向空间", 10, "end")
-label(*C(SENS["rec_w"] / 2 - 0.7, GID / 2 + 4.1), *C(22, 12), "卡口留板，内槽挡光", 10)
+label(*C(SENS["rec_w"] / 2 - 0.7, GID / 2 + 4.1), *C(-26, -16), "卡口留板，内槽挡光", 10, "end")
 
 # =====================================================================
 # Notes and component table
@@ -357,8 +410,18 @@ notes = [
     "6. 没设计：握把与头的固定件、充电宝充电口/按键/电量显示开孔（看实物）、线缆固定、OLED 和按钮的螺柱尺寸、打印公差、端盖密封。",
     "7. 来源：docs/hardware.md 充电宝腔体 ≥ 86 × 44 × 35；HANDOFF 2026-11-06 单侧头部、垫圈配重、1–1.5 kg、壁厚 2–3。外壳归 Eric，本图是输入不是替代。",
 ]
-for i, n in enumerate(notes):
-    text(NX2, NY + 22 + 17 * i, n, 10.5, fill="#222")
+def wrap(t, n=150):
+    if len(t) <= n: return [t]
+    words = t.split(" "); lines = []; cur = ""
+    for w in words:
+        if len(cur) + len(w) + 1 > n and cur: lines.append(cur); cur = "   " + w
+        else: cur = (cur + " " + w) if cur else w
+    lines.append(cur); return lines
+yy = NY + 22
+for n in notes:
+    for ln in wrap(tr(n)):
+        text(NX2, yy, ln, 10.5, fill="#222"); yy += 17
 add("</svg>")
 open(sys.argv[1], "w").write("\n".join(out) + "\n")
 print("wrote", sys.argv[1], len("\n".join(out)), "bytes")
+if MISSING: print("UNTRANSLATED:", *sorted(MISSING), sep="\n  ")

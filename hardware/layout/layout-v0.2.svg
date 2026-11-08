@@ -234,9 +234,9 @@
 <line x1='577.5' y1='705.0' x2='577.5' y2='815.0' stroke='#777' stroke-width='0.8' stroke-linecap='round'/>
 <circle cx='577.5' cy='705.0' r='1.6' fill='#777' stroke='#777' stroke-width='0'/>
 <text x='580.5' y='819.0' font-size='10.5' text-anchor='start' font-weight='normal' fill='#333' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>4 根线走握把内孔到右头集线板（紫虚线）</text>
-<line x1='787.5' y1='709.0' x2='660.0' y2='755.0' stroke='#777' stroke-width='0.8' stroke-linecap='round'/>
+<line x1='787.5' y1='709.0' x2='1025.0' y2='845.0' stroke='#777' stroke-width='0.8' stroke-linecap='round'/>
 <circle cx='787.5' cy='709.0' r='1.6' fill='#777' stroke='#777' stroke-width='0'/>
-<text x='657.0' y='759.0' font-size='10.5' text-anchor='end' font-weight='normal' fill='#333' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>集线洞洞板 50×40×1.6，焊排母；半长面包板 83×55 放不进</text>
+<text x='1028.0' y='849.0' font-size='10.5' text-anchor='start' font-weight='normal' fill='#333' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>集线洞洞板 50×40×1.6，焊排母；半长面包板 83×55 放不进</text>
 <line x1='911.2' y1='594.0' x2='961.2' y2='545.0' stroke='#777' stroke-width='0.8' stroke-linecap='round'/>
 <circle cx='911.2' cy='594.0' r='1.6' fill='#777' stroke='#777' stroke-width='0'/>
 <text x='964.2' y='549.0' font-size='10.5' text-anchor='start' font-weight='normal' fill='#333' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>OLED 0.96" 27×28，两根柱子吊在顶壁下</text>
@@ -348,9 +348,9 @@
 <line x1='1515.0' y1='754.0' x2='1410.0' y2='810.0' stroke='#777' stroke-width='0.8' stroke-linecap='round'/>
 <circle cx='1515.0' cy='754.0' r='1.6' fill='#777' stroke='#777' stroke-width='0'/>
 <text x='1407.0' y='814.0' font-size='10' text-anchor='end' font-weight='normal' fill='#333' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>排针折平后焊线，不占径向空间</text>
-<line x1='1576.5' y1='739.5' x2='1650.0' y2='760.0' stroke='#777' stroke-width='0.8' stroke-linecap='round'/>
+<line x1='1576.5' y1='739.5' x2='1410.0' y2='900.0' stroke='#777' stroke-width='0.8' stroke-linecap='round'/>
 <circle cx='1576.5' cy='739.5' r='1.6' fill='#777' stroke='#777' stroke-width='0'/>
-<text x='1653.0' y='764.0' font-size='10' text-anchor='start' font-weight='normal' fill='#333' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>卡口留板，内槽挡光</text>
+<text x='1407.0' y='904.0' font-size='10' text-anchor='end' font-weight='normal' fill='#333' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>卡口留板，内槽挡光</text>
 <text x='90.0' y='1000.0' font-size='13' text-anchor='start' font-weight='bold' fill='#111' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>元件包络（mm）</text>
 <text x='90.0' y='1022.0' font-size='10.5' text-anchor='start' font-weight='bold' fill='#111' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>Arduino Nano ESP32</text>
 <text x='280.0' y='1022.0' font-size='10.5' text-anchor='start' font-weight='normal' fill='#111' font-family='PingFang SC, Helvetica Neue, Helvetica, Arial, sans-serif'>45 × 18 × 12（含排母插接）</text>
