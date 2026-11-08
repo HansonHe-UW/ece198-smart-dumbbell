@@ -1,171 +1,145 @@
-# 板子到货测试（bring-up）
+# Hardware bring-up
 
-目的：按顺序证明 Nano ESP32 能烧录、无线能用、I2C 总线通、IMU 出数。四个 sketch 各测一件事，前一个不过就不要做下一个。每一步把结果写进 `tests/`（模板在 `tests/templates/test-record.md`），通过和失败都记。
+Run these sketches in order to check upload, Wi-Fi, I2C and sensor acquisition before integration. Record both passes and failures in `tests/results/` using the [template](../../tests/templates/test-record.md). Written 2026-11-03; compilation and hardware evidence are distinguished below.
 
-写于 2026-11-03，板子到货当天。这些 sketch 是按库文档写的；"编译验证"一栏在本页末尾说明哪些真的编过。
+## 0. Computer setup
 
-## 0. 电脑端准备（一次）
+1. Install Arduino IDE 2.x and **Arduino ESP32 Boards** by Arduino in Boards Manager.
+2. Select **Arduino Nano ESP32** and keep **Pin Numbering → By Arduino pin**. GPIO numbering changes the meaning of the documented pins.
+3. Install Adafruit LSM6DS and its dependencies (Adafruit Unified Sensor and BusIO), SparkFun MAX3010x Pulse and Proximity Sensor Library, and Adafruit SSD1306 with Adafruit GFX.
+4. Use a data-capable USB-C cable. A charge-only cable will not expose a port.
 
-1. Arduino IDE 2.x。
-2. **Tools → Board → Boards Manager**，搜 `Arduino ESP32 Boards`（作者 Arduino，不是 Espressif 那个），安装。下载几百 MB，提前装。
-3. **Tools → Board → Arduino ESP32 Boards → Arduino Nano ESP32**。
-4. **Tools → Pin Numbering** 保持默认 **By Arduino pin**。选成 GPIO 编号的话 A4/A5、D2 这些名字全部错位。
-5. **Library Manager** 装 `Adafruit LSM6DS`，提示一并安装依赖（Adafruit Unified Sensor、Adafruit BusIO）时选 Install all；再装 `SparkFun MAX3010x Pulse and Proximity Sensor Library`、`Adafruit SSD1306`（会带上 Adafruit GFX）。
-6. 用一根**能传数据**的 USB-C 线。只能充电的线插上后电脑看不到端口，这是最常见的"板子坏了"假警报。
+Ports appear as `/dev/cu.usbmodemXXXX` on macOS or `COMx` on Windows.
 
-端口：macOS 显示为 `/dev/cu.usbmodemXXXX`，Windows 为 `COMx`，IDE 里名字会标 Arduino Nano ESP32。
+## 1. `01_blink`: upload and basic operation
 
-## 1. `01_blink` — 板子活着
+Connect USB only. Expected: onboard RGB cycles red, green and blue, the yellow LED flashes, and the 115200-baud serial monitor prints uptime every 300 ms.
 
-接线：只插 USB-C。
+If no port appears, try another cable or USB port. For failed uploads or a stuck board, double-press RST about 0.3–1 s apart; a slow green breathing LED indicates the Arduino bootloader. Retry upload. As a last resort, short the **B1 pad** to GND, press RST and follow Arduino's Nano ESP32 bootloader-reset procedure. B1 is a pad, not a button; RST is the board's button.
 
-通过标准：板载 RGB 灯红、绿、蓝轮流亮，黄灯同步闪；串口监视器（115200）每 300 ms 一行 uptime。
+## 2. `02_wifi_ap`: wireless connectivity
 
-不通过时：
-- 端口不出现：换线、换 USB 口。
-- 上传失败或板子卡死：**双击 RST**（两次间隔 0.3 到 1 秒，比别的 Arduino 慢），RST 旁边的灯慢速绿色呼吸表示进入了 Arduino bootloader 模式，再上传一次即可恢复。
-- 双击也救不回来：用一根杜邦线把 **B1 焊盘和 GND 短接**（板子上 B1 是焊盘，不是按钮，板上唯一的按钮是 RST），短接状态下按一下 RST，RGB 灯常绿表示进入固件下载模式，然后按 Arduino 官方"Reset the Arduino bootloader on the Nano ESP32"文章走 Burn Bootloader。这一步是最后手段。
+Connect USB only. Expected: every 2 s the serial monitor prints `AP SmartDumbbell-57 ip=192.168.4.1 stations=0 ...`. Join the test AP `SmartDumbbell-57` with the sketch's test password `ece198test`; the station count should become 1. Open `http://192.168.4.1` for uptime text. Record startup-to-AP time for later interruption testing.
 
-## 2. `02_wifi_ap` — 无线
+**Serial-tool issue observed 2026-11-03:** avoid toggling DTR/RTS. This can restart the Nano into ROM download mode, change its port name, leave `waiting for download` on serial and cause upload exit status 74. The IDE monitor and `cat` did not trigger this in the recorded setup; do not manipulate `dtr`/`rts` in pyserial scripts. Press RST to recover. If physical access is unavailable, the recorded esptool 5.x recovery command is:
 
-接线：只插 USB-C。
+```bash
+esptool --chip esp32s3 --port PORT --after watchdog-reset chip-id
+```
 
-通过标准：串口每 2 秒一行 `AP SmartDumbbell-57  ip=192.168.4.1  stations=0 ...`；手机 Wi-Fi 列表出现 `SmartDumbbell-57`，密码 `ece198test` 能连上，连上后那一行变成 `stations=1`；浏览器打开 `http://192.168.4.1` 显示一行 uptime 文本。
+Ordinary `hard_reset` did not recover that state.
 
-**串口工具的坑（2026-11-03 踩过）：** 不要在这块板的串口上切换 DTR/RTS。Arduino ESP32 内核把"DTR/RTS 翻转"当成进入下载模式的信号，板子会重启进 ROM 下载模式，端口名变成 `usbmodem1101` 之类，串口只剩一行 `waiting for download`，之后 IDE 上传报 `exit status 74`。IDE 的串口监视器和 `cat` 不会触发；pyserial 脚本里不要碰 `dtr`/`rts`。恢复：按一下 RST；没有人在板子旁边时可以用 esptool 5.x 执行 `esptool --chip esp32s3 --port <端口> --after watchdog-reset chip-id`，普通 `hard_reset` 出不来。
+## 3. `03_i2c_scan`: bus and IMU
 
-顺便记录：从上电到热点出现用了几秒（之后 AT-08 断线重连要用）。
+Plug the Adafruit 4209 JST connector into a 4517 QT socket:
 
-## 3. `03_i2c_scan` — 总线和 IMU 在不在
-
-接线（4209 线，JST 端插 4517 任一 QT 座，杜邦端插 Nano）：
-
-| 线色 | Nano 引脚 |
+| Wire | Nano pin |
 |---|---|
-| 黑 | GND |
-| 红 | 3V3 |
-| 蓝 | A4（SDA） |
-| 黄 | A5（SCL） |
+| Black | GND |
+| Red | 3V3 |
+| Blue | A4 / SDA |
+| Yellow | A5 / SCL |
 
-Nano 上 A4、A5 在印着 SDA、SCL 的那一侧。4517 板上绿色电源灯应该亮。
+The 4517 power LED should light. Expected every 3 s: `0x6A LSM6DSOX` and `0x1C LIS3MDL`, two devices. No power LED suggests a supply connection problem. With power but no devices, check SDA/SCL and fully seat the JST connector. LIS3MDL may miss the first cold-start scan; check the next scan. Adding MAX30102 and OLED should add `0x57` and `0x3C`.
 
-通过标准：串口每 3 秒打印一次，列出 `0x6A LSM6DSOX` 和 `0x1C LIS3MDL`，共 2 个设备。
+## 4. `04_imu_stream`: IMU acquisition
 
-不通过时：
-- 0 个设备且 4517 灯不亮：红线没到 3V3。
-- 0 个设备但灯亮：蓝黄接反，或 JST 头没插到底（要听到咔哒）。
-- 只有 0x6A 没有 0x1C：正常也可能，LIS3MDL 偶尔在冷启动后第一轮扫描不应答，看第二轮。
+Use step 3 wiring. Expected CSV header: `t_ms,ax,ay,az,gx,gy,gz`, at 104 Hz. With the component side facing up and stationary, az should be about +9.8 m/s², ax/ay near zero and gyro channels within about ±2 deg/s. Rotation should produce a clear response on the matching gyro axis.
 
-以后接上 MAX30102 和 OLED，再跑一次这个 sketch，应该多出 `0x57` 和 `0x3C`。
-
-## 4. `04_imu_stream` — IMU 出数，也是录数据的格式
-
-接线同第 3 步。
-
-通过标准：串口以 104 Hz 输出 CSV，表头 `t_ms,ax,ay,az,gx,gy,gz`。板子平放不动时 az 约 +9.8，ax、ay 接近 0，三个 gyro 列在 ±2 以内抖动。绕某个轴快速转动，对应 gyro 列明显摆到几十到几百。
-
-顺便做两件事：
-- 用 IDE 的 Serial Plotter 看一眼波形，确认没有周期性丢包（时间戳每行应递增约 9 到 10 ms）。
-- 用 `record_serial.py` 录 30 秒存成文件，验证录数据流程：
+Inspect the Serial Plotter and timestamps for gaps; intervals should be about 9–10 ms. Test a 30 s recording:
 
 ```bash
 pip install pyserial
+python3 firmware/bringup/record_serial.py /dev/cu.usbmodemXXXX data/raw/bench_flat_01.csv 30
 ```
 
-```bash
-python3 firmware/bringup/record_serial.py /dev/cu.usbmodem1101 data/raw/bench_flat_01.csv 30
-```
+Replace the port. `data/raw/` is ignored by Git. Acquisition settings are ±4 g, ±500 dps and 104 Hz; update the ML acquisition documentation before changing them.
 
-端口名换成自己电脑上的。`data/raw/` 被 `.gitignore` 忽略，录音不会进 Git。
+## 5. `05_max30102`: optical sensor
 
-量程设置：加速度 ±4 g，陀螺仪 ±500 dps，104 Hz。这是 ML 计划里提议的采集设置，改之前先改 `ml/README.md`。
+Share the I2C bus with the IMU:
 
-## 5. `05_max30102` — 心率模块出数
-
-接线（GY-MAX30102 模块用杜邦线接到面包板，和 IMU 共用同一条 I2C 总线）：
-
-| 模块引脚 | 接到 |
+| Module pin | Connection |
 |---|---|
-| VIN | 3V3（和 4209 红线同一行） |
+| VIN | 3V3 |
 | GND | GND |
-| SCL | A5（和黄线同一行） |
-| SDA | A4（和蓝线同一行） |
-| INT、IRD、RD | 不接 |
+| SCL | A5 |
+| SDA | A4 |
+| INT, IRD, RD | Unconnected |
 
-很多 GY-MAX30102 到手时排针是散装的，要先焊；只焊 VIN、GND、SCL、SDA 四根也行。接好后先跑一遍 `03_i2c_scan`，应该多出 `0x57 MAX30102`，共 3 个设备。扫不到 0x57 但 IMU 还在，就是这块模块的 1.8 V 上拉问题，见 `hardware/wiring/README.md`。
+Some modules arrive with loose headers; solder the required pins before use. Scan first: expect `0x57` and three devices total. If the IMU works but this module does not respond, investigate module connections and the possible 1.8 V pull-up issue described in [wiring notes](../../hardware/wiring/README.md).
 
-通过标准：
-- 串口第一行 `part id 0x15`。
-- 没手指时 `ir` 小于 20000；手指轻放在窗口上 `ir` 跳到 50000 以上，`finger` 变 1。
-- 等 20 秒稳定后，`beat` 大约每次心跳置 1 一次，`bpm_avg` 和你自己数 30 秒脉搏乘 2 的结果相差不超过 5。
-- 手指拿开 2 秒内 `finger` 回 0，`bpm` 归零（这是 FR-08、AT-06 的雏形）。
+Proposed checks:
 
-手指要**轻放**，用力压会把血挤走，信号反而没了。环境光强时用手遮一下。这一步测的是静止心率；运动中心率是另一回事，要等 AT-04 的方法定下来再测。
+- Startup part ID `0x15`.
+- Without a finger, IR below 20000; light finger contact raises IR above 50000 and sets `finger=1`.
+- After 20 s stabilization, `beat` pulses approximately once per heartbeat; compare `bpm_avg` against a manually counted 30 s pulse doubled, with a proposed difference no greater than 5 bpm.
+- Within 2 s of removing the finger, `finger=0` and BPM returns to zero.
 
-## 6. `06_imu_hr_combined` — 两个传感器同时跑（协同性）
+Use light contact; pressing hard can suppress the signal. Shield strong ambient light. These are stationary checks, not during-motion heart-rate acceptance. See actual results before claiming success.
 
-接线同第 5 步，4517 和 GY-MAX30102 都挂在总线上。这一步回答的是 FR-13 和 AT-07 的前半句：心率处理会不会拖慢动作采样。两个传感器在一个非阻塞 loop 里轮流服务，IMU 按 104 Hz 定时，MAX30102 从 FIFO 里有多少取多少。
+## 6. `06_imu_hr_combined`: concurrent sensing
 
-串口三种行：`I,` 开头是 IMU 样本（104 Hz），`H,` 开头是心率样本（约 25 Hz），`S,` 开头每 5 秒一条统计。统计列：IMU 样本数、实际频率、最大间隔 ms、累计迟到次数、心率样本数、心率频率、单次 loop 最长耗时 µs。
+Use step 5 wiring. This checks whether heart-rate processing blocks motion sampling (FR-13 and part of AT-07). Both sensors run in a nonblocking loop: scheduled 104 Hz IMU reads and MAX30102 FIFO servicing.
 
-通过标准（手指放在 MAX30102 上、同时晃动 IMU 的 30 秒内）：
-- `imu_hz` 在 103 到 105 之间，`imu_dt_max_ms` 不超过 12，`imu_late` 不增加。
-- `hr_hz` 约 25，`H` 行里仍有 `beat=1` 出现。
-- `loop_max_us` 明显小于 9600（一个 IMU 周期）。
+Serial row types: `I,` for IMU samples (104 Hz), `H,` for heart-rate samples (about 25 Hz in this sketch), and `S,` for statistics every 5 s. Statistics include IMU sample count/rate, maximum interval, late samples, heart-rate sample count/rate and maximum loop duration.
 
-任何一项不满足，先看 `loop_max_us`：接近或超过 9600 说明某次 I2C 读取太长，通常是 MAX30102 FIFO 一次攒了太多样本，把 `hr.check()` 改成每次最多处理几个样本即可。
+For a 30 s trial with finger contact and IMU motion, proposed checks are:
 
-## 7. `07_oled_buttons` — OLED、按钮、LED、蜂鸣器可用性
+- `imu_hz` 103–105, `imu_dt_max_ms` <=12 and no increase in `imu_late`.
+- `hr_hz` around 25 with `beat=1` still appearing.
+- `loop_max_us` well below 9600, one IMU period.
 
-一个最小的界面模型：SW1 开始／暂停，SW2 手动加一次，SW3 结束归零。屏幕显示状态、大号次数／目标、计时。库：Adafruit SSD1306、Adafruit GFX。
+A loop near or above 9600 us may indicate long I2C/FIFO servicing. Limit the number of samples processed per loop before retrying.
 
-接线：
+## 7. `07_oled_buttons`: display and controls
 
-| 器件 | 接到 | 说明 |
+This mock UI uses SW1 to start/pause, SW2 to add one manually, and SW3 to end/reset. It displays state, count/target and elapsed time. Dependencies: Adafruit SSD1306 and GFX.
+
+| Device | Connection | Notes |
 |---|---|---|
-| OLED VCC / GND | 3V3 / GND | **先看模块丝印**，有的是 GND-VCC-SCL-SDA，有的是 VCC-GND-SCL-SDA，接反会烧 |
-| OLED SCL / SDA | A5 / A4 | 和 IMU、心率共用那两行 |
-| SW1 / SW2 / SW3 | D2 / D3 / D4，另一脚到 GND | 内部上拉，不要电阻；套件按钮跨在面包板中沟上 |
-| LED | D7 → 220 Ω → LED 长脚，短脚到 GND | 选红或黄 |
-| 蜂鸣器 | D5，另一脚 GND | 有 Grove 转接线才接；没有就跳过，LED 代替 |
+| OLED VCC/GND | 3V3/GND | Verify printed pin order before connecting |
+| OLED SCL/SDA | A5/A4 | Shared bus |
+| SW1/SW2/SW3 | D2/D3/D4 to GND | Internal pull-ups; place buttons across the breadboard gap |
+| LED | D7 → 220 ohm → anode; cathode to GND | Use red or yellow |
+| Optional buzzer | D5 and GND | Use a suitable Grove adapter; otherwise use LED feedback |
 
-接好先跑 `03_i2c_scan`，应出现 `0x3C SSD1306 OLED`，共 4 个设备。
+Scan first: expect `0x3C SSD1306 OLED`, four devices total. Proposed checks:
 
-通过标准：
-- 上电屏幕显示 `IDLE  0 /10` 和按键提示，字清楚不闪。
-- 每次按键串口只打印一条 `EVENT`，不重复、不漏；连按 20 次 SW2 计数正好 20。
-- 每次加一 LED 闪一下，蜂鸣器响一下，到 10 时长响。
-- 大号数字在一臂距离外能认出来。
+- Clear, stable startup display `IDLE 0 /10` and button hints.
+- One `EVENT` per press; twenty SW2 presses produce exactly twenty increments.
+- Each increment flashes the LED and sounds the connected buzzer; a longer indication occurs at ten.
+- Large digits are readable at arm's length.
 
-这一步同时验证了 FR-02 的三键操作和 FR-09 的显示内容雏形。
+This checks the three-button UI and an initial FR-09 display, not complete product acceptance.
 
-## 8. 可选：TensorFlow Lite Micro 编译检查
+## 8. Optional TensorFlow Lite Micro compilation
 
-ML 那条线最大的未知数是推理库能不能在这块板上编译。Library Manager 搜 `Chirale_TensorFlowLite`，打开它的 `hello_world` 示例，选 Nano ESP32 只点 **Verify** 不用上传。能编过就记一笔"工具链可用"；编不过把完整报错贴进 Issue，备选方案是 emlearn 把 scikit-learn 模型导成 C 代码。
+Install `Chirale_TensorFlowLite`, open `hello_world`, select Nano ESP32 and verify without uploading. Record compiler availability only; report full build errors if it fails. A fallback is exporting a scikit-learn model to C with emlearn.
 
-## 9. 记录什么
+## 9. Evidence to record
 
-每个 sketch 一条记录：日期、谁测的、IDE 和开发板包版本、通过与否、异常现象、串口输出截图或前 20 行。IMU 那一步额外记静止时 az 的均值和 gyro 的标准差，以后对比传感器有没有漂移。
+For each sketch record date, tester, IDE/board-package versions, result, anomalies and a serial screenshot or first twenty lines. For the IMU, also record stationary az mean and gyro standard deviation for future comparisons.
 
-## 编译验证
+## Recorded compilation and hardware checks
 
-2026-11-03，macOS，arduino-cli 1.x，开发板包 Arduino ESP32 Boards 2.0.18-arduino.5，FQBN `arduino:esp32:nano_nora`。四个 sketch 都编译通过，**尚未在板子上运行**：
+2026-11-03, macOS, arduino-cli 1.x, Arduino ESP32 Boards 2.0.18-arduino.5, FQBN `arduino:esp32:nano_nora`:
 
-| Sketch | Flash | RAM（全局变量） |
+| Sketch | Flash | Global RAM |
 |---|---|---|
-| 01_blink | 286 kB（9%） | 30.6 kB（9%） |
-| 02_wifi_ap | 706 kB（22%） | 56.3 kB（17%） |
-| 03_i2c_scan | 303 kB（9%） | 30.9 kB（9%） |
-| 04_imu_stream | 315 kB（10%） | 31.0 kB（9%） |
-| 05_max30102 | 308 kB（9%） | 31.1 kB（9%） |
-| 06_imu_hr_combined | 319 kB（10%） | 31.2 kB（9%） |
-| 07_oled_buttons | 320 kB（10%） | 31.1 kB（9%） |
+| 01_blink | 286 kB (9%) | 30.6 kB (9%) |
+| 02_wifi_ap | 706 kB (22%) | 56.3 kB (17%) |
+| 03_i2c_scan | 303 kB (9%) | 30.9 kB (9%) |
+| 04_imu_stream | 315 kB (10%) | 31.0 kB (9%) |
+| 05_max30102 | 308 kB (9%) | 31.1 kB (9%) |
+| 06_imu_hr_combined | 319 kB (10%) | 31.2 kB (9%) |
+| 07_oled_buttons | 320 kB (10%) | 31.1 kB (9%) |
 
-库版本：Adafruit LSM6DS 4.7.4、Adafruit Unified Sensor 1.1.15、Adafruit BusIO 1.17.4、SparkFun MAX3010x 1.1.2。01 到 05 和 07 的屏幕部分已在板子上跑过（见 `tests/results/`），06 和 07 的按键部分只编译过。
+Recorded libraries: Adafruit LSM6DS 4.7.4, Unified Sensor 1.1.15, BusIO 1.17.4 and SparkFun MAX3010x 1.1.2. All seven sketches compiled. Sketches 01–05 and the display portion of 07 were run on hardware; see [results](../../tests/results/). At that time, 06 and the button portion of 07 had compilation checks only.
 
-第 8 步的 TensorFlow Lite Micro 检查也做了：Chirale_TensorFlowLite 2.0.0 的 `hello_world` 示例在同一配置下编译通过，Flash 579 kB（18%），RAM 39 kB（11%）。工具链可用，剩下的是模型大小和推理时间要在板上实测。
+Chirale_TensorFlowLite 2.0.0 `hello_world` also compiled: Flash 579 kB (18%), RAM 39 kB (11%). Model size and on-board inference performance require separate measurements.
 
-命令行复现（装了 arduino-cli 的话）：
+Example reproduction:
 
 ```bash
 arduino-cli compile --fqbn arduino:esp32:nano_nora firmware/bringup/01_blink

@@ -4,7 +4,7 @@ ECE 198 student design project, Group 57, University of Waterloo.
 
 A proposed lightweight smart dumbbell for CCCARE participants who can independently perform prescribed bicep curls at home. The device is intended to count complete repetitions, show progress, measure heart rate during movement, and send session records to a computer.
 
-**Status: concept and planning stage.** Specifications, a concept CAD model, and pitch materials are available. Firmware, the trained model, the computer application, and physical performance tests have not been implemented or verified.
+**Status: early prototype development.** Specifications, concept CAD and pitch materials are available, along with bring-up firmware, an integrated application draft, a synthetic-data classifier and a computer logger tested against a mock server. Initial bench checks are recorded in [tests/results](tests/results/); full-system integration and AT-01–AT-10 acceptance remain unverified.
 
 ![Smart dumbbell concept](hardware/renders/Smart_Dumbbell_Concept_Render_v01.png)
 
@@ -13,10 +13,9 @@ A proposed lightweight smart dumbbell for CCCARE participants who can independen
 ## Start here
 
 - [Bluetooth training dashboard](software/web/) and [connection instructions](software/README.md#bluetooth-dashboard)
-
-- **[Team repository guide / 团队使用说明](docs/team-guide.md)**
-- [Handoff brief for teammates and their AI assistants](HANDOFF.md)
-- [Working specification](docs/specification.md) and [Chinese version](docs/specification-zh.md)
+- **[Team repository guide](docs/team-guide.md)**
+- [Handoff brief for teammates and their AI assistants](docs/handoff.md)
+- [Working specification](docs/specification.md)
 - [Specification PDF snapshot](docs/exports/Smart_Dumbbell_Preliminary_Specification_v01.pdf)
 - [Decisions and open questions](docs/decisions.md)
 - [Hardware and budget](docs/hardware.md)
@@ -56,13 +55,13 @@ Counting, sensing, and the display are intended to continue when the computer di
 
 | Directory | Contents |
 |---|---|
-| `docs/` | Specification, research plan, decisions, and exported snapshot |
+| `docs/` | Specification, handoff, team guide, research, decisions and exported snapshot |
 | `hardware/` | Native CAD, model generator, rendering, assumptions, and the wiring draft |
 | `presentation/` | Current pitch and matching narration |
-| `firmware/` | Planned Nano ESP32 implementation; no code yet |
-| `software/` | Bluetooth dashboard and simulated HTTP logger |
-| `ml/` | Work plan for classification and counting (`ml/workplan.md`); no model yet |
-| `tests/` | Acceptance-test tracking; no measured results yet |
+| `firmware/` | Nano ESP32 bring-up sketches, classifier and integrated application draft |
+| `software/` | Bluetooth dashboard, computer data logger, mock server and usage instructions |
+| `ml/` | Recording protocol, workplan and training/export pipeline; current weights use synthetic data |
+| `tests/` | Test templates, initial bench records and host software checks |
 | `data/` | Data-handling guidance; no participant recordings |
 
 ## Next milestones

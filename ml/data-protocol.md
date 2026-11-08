@@ -1,123 +1,101 @@
-# 录数据协议（动作分类线）
+# Motion classification recording protocol
 
-版本 v0.1，2026-11-03，负责人 Hanson He。标了【待定】的地方录第一个人之前必须填掉；标了【提议】的是分类线的选择，写在这里供组里反对。
+Version v0.1, 2026-11-03. Owner: Hanson He. Resolve **TBD** items before recording the first participant. **Proposed** items require team agreement.
 
-## 1. 录什么、给谁用
+## 1. Purpose
 
-一份数据两个人用：分类线拿它训练和评估"这两秒是不是弯举"，计数线拿它离线调"一上一下算一次"。所以每段录音除了标签还要记**真实次数**，由录制者当场数。
+The same recordings support classification of two-second motion windows and offline tuning of complete-cycle counting. Record both the motion label and the observer's ground-truth count for each relevant file.
 
-## 2. 设备和固件
+## 2. Equipment and acquisition
 
-- 板子：Nano ESP32 + Adafruit 4517，4209 线连 A4/A5，接法见 `hardware/wiring/README.md`。
-- 固件：`firmware/bringup/04_imu_stream`，104 Hz，加速度 ±4 g，角速度 ±500 dps。**录数据期间不改这个 sketch 的任何参数**，改了之前的数据作废。
-- 电脑端：`firmware/bringup/record_serial.py`，走 USB 线。v1 数据采集不用 Wi-Fi，少一个变量。
-- 输出格式：`t_ms,ax,ay,az,gx,gy,gz`，加速度 m/s²，角速度 deg/s。坐标系按 4517 丝印（+X、+Y 箭头方向，元件面朝上时 +Z 朝上），已于 2026-11-03 实测核对。
+- Nano ESP32 and Adafruit 4517 connected through a 4209 cable to A4/A5; see [wiring](../hardware/wiring/README.md).
+- `firmware/bringup/04_imu_stream`: 104 Hz, ±4 g, ±500 dps. Freeze these settings for a dataset; changes can invalidate compatibility with earlier recordings.
+- Record over USB using `firmware/bringup/record_serial.py`; Wi-Fi is not used for v1 collection.
+- CSV: `t_ms,ax,ay,az,gx,gy,gz`. Acceleration is m/s² and angular rate deg/s. Axes follow the 4517 markings: +X/+Y arrows and +Z out of the component face, checked on 2026-11-03.
 
-## 3. 录制用的哑铃和安装方向【待定】
+## 3. Recording fixture and mounting — TBD
 
-外壳还没有，先用一只普通哑铃或等重的替代物。要求：
+The original protocol proposes an ordinary 1–1.5 kg dumbbell or equivalent fixture while the enclosure is unavailable. This is a recording proposal, not an approved change to the working specification's mass limit; reconcile it before collection.
 
-- 重量 1–1.5 kg，和目标产品一致。
-- 4517 用双面胶或扎带固定在握把一端，板子不能在手里晃。Nano 和面包板固定在哑铃头上或者用 150 mm 的 4209 线留在桌上，但后者只适合坐姿录制。
-- USB 线从手背一侧走，留 1 m 以上余量，不要拉扯。
+Secure the 4517 at one end of the handle with tape or ties. It must not move independently. Secure the Nano/breadboard to a head, or keep them on the table using the 150 mm cable for seated recordings only. Route USB behind the hand with at least 1 m of slack.
 
-安装方向的提议【提议】：**4517 的 X 轴沿握把轴线**，元件面朝向手背（即弯举时朝外）。弯举是前臂绕肘关节转，握把大致和肘关节轴平行，所以这样装之后弯举的角速度主要落在 `gx` 一列，另两列小，计数线只要看一列。
+**Proposed orientation:** X along the handle, component face toward the back of the hand/outward during a curl. The expected main angular-rate signal is `gx`; confirm this experimentally. Before the first participant, save a mounting photo as `ml/figures/mounting-v1.jpg`, state which head +X points toward and which way the component face points, and freeze the mounting. A later change needs a new protocol version and version labels on existing data.
 
-录第一个人之前要：拍一张安装照片放进 `ml/figures/mounting-v1.jpg`，在这里写明"X 轴朝哪个哑铃头、元件面朝哪边"，然后不再改。之后要换方向就开新一版协议，之前的数据标明版本。
+## 4. Participants
 
-## 4. 参与者
+Use `P01`, `P02`, etc. Hanson keeps any identity mapping outside the repository. Record only hand (L/R) and regular strength-training experience (Y/N), not age, height or medical history. Explain what is recorded, storage and the option to stop; confirm course volunteer requirements before collection (pending). Target at least six participants, including both hands and training-experience groups; teammates may participate.
 
-- 只用编号 `P01`、`P02`……编号对姓名的表由 Hanson 保存在仓库外（见 `data/README.md`）。
-- 每人只记两项：用哪只手（L/R）、平时有没有做力量训练（Y/N）。不记年龄、身高、病史。
-- 开始前口头说明录什么、数据怎么存、可以随时停，并确认课程对志愿者的要求（待查）。
-- 目标 ≥ 6 人，左右手都有，有锻炼习惯和没有的都有。组员自己算参与者。
+## 5. Labels
 
-## 5. 标签怎么定
+Four recording labels map to three training classes:
 
-四个录制标签，训练时合成三类。
+| Label | Procedure |
+|---|---|
+| `curl` | Continuous complete curls: arm naturally down, raise until forearm is near vertical and dumbbell near shoulder, return down. No pauses or half-repetitions; observer counts cycles. |
+| `idle` | Separate files for standing with dumbbell at side, dumbbell on table without contact, and seated with dumbbell on lap. |
+| `other` | In one continuous file: five pickup/put-down cycles, walking 20 s, ten lateral raises, ten front raises, random shaking 20 s. |
+| `curl_partial` | Ten half raises, five raises with a 3 s hold at the top, then three complete curls followed by 5 s rest repeated three times. Record actual complete cycles. |
 
-| 录制标签 | 内容 | 边界 |
+Record curls at approximately 3 s (slow), 2 s (normal) and 1.2 s (fast) per cycle, paced verbally or with a metronome.
+
+**Proposed training mapping:** map `curl_partial` to `curl`. Classification identifies the motion family; the counter decides completeness. A two-second window may not distinguish half-range movement from the ascending phase of a normal curl. Use these files to check overcounting in AT-02.
+
+## 6. Per-participant checklist
+
+Allow roughly seven minutes of data and thirty minutes including setup.
+
+| File | Duration | Ground-truth count |
 |---|---|---|
-| `curl` | 连续完整弯举 | 起点手臂自然下垂，终点前臂接近竖直、哑铃靠近肩。一上一下算一次。整段里不停、不做半次。录制者数次数。 |
-| `idle` | 不动 | 三种：手持哑铃垂于体侧站着不动；哑铃平放桌上手离开；坐姿持铃放在腿上。每种单独一个文件。 |
-| `other` | 不是弯举的动作 | 从桌上拿起再放下（反复 5 次）；提着走 20 s；侧平举 10 次；前平举 10 次；随意晃动 20 s。全部录在一个文件里，中间不停。 |
-| `curl_partial` | 不完整的弯举 | 只举到一半就放下 10 次；举到顶停 3 s 再放下 5 次；做 3 次完整后停 5 s，重复 3 轮。录制者记完整次数。 |
+| `Pxx_idle_stand_01.csv` | 30 s | Not applicable |
+| `Pxx_idle_table_01.csv` | 30 s | Not applicable |
+| `Pxx_idle_lap_01.csv` | 30 s | Not applicable |
+| `Pxx_curl_slow_01.csv` | 40 s | Record |
+| `Pxx_curl_normal_01.csv` | 40 s | Record |
+| `Pxx_curl_fast_01.csv` | 40 s | Record |
+| `Pxx_other_mixed_01.csv` | 120 s | Not applicable |
+| `Pxx_partial_mixed_01.csv` | 60 s | Record complete cycles |
 
-**速度**：`curl` 分三段录。慢：一次约 3 s；正常：约 2 s；快：约 1.2 s。录制者用手机节拍器或口头报拍。
+Discard failed recordings (disconnect, cable tug or incorrect movement) and repeat with the next attempt number, such as `_02`.
 
-**`curl_partial` 训练时归哪类【提议】**：归 `curl`。理由：它在运动学上就是弯举动作，模型的任务只是判断"在做弯举这类动作"，完整不完整由计数线判断。如果归 `other`，模型要在 2 s 窗里分辨"举到一半"和"举到顶"，很难训，而且会把正常弯举的上升段也判成 `other`。计数线在 AT-02 里专门用这批文件测"不多数"。
+## 7. Naming
 
-## 6. 每人录制清单
+Use `P01_curl_slow_01.csv`: participant, recording label, variant and attempt number starting at 01. Keep the `P` participant prefix as shown and use lowercase labels/variants separated by underscores. Variants are `slow`, `normal`, `fast`, `stand`, `table`, `lap`, `mixed`; filename labels are `curl`, `idle`, `other`, `partial`. Save in `data/sessions/`. Training derives identity and labels from filenames, so names must be accurate.
 
-一人约 7 分钟有效数据，连准备约 30 分钟。顺序固定，方便对照。
+## 8. Recording procedure
 
-| # | 文件 | 时长 | 真实次数 |
-|---|---|---|---|
-| 1 | `Pxx_idle_stand_01.csv` | 30 s | - |
-| 2 | `Pxx_idle_table_01.csv` | 30 s | - |
-| 3 | `Pxx_idle_lap_01.csv` | 30 s | - |
-| 4 | `Pxx_curl_slow_01.csv` | 40 s | 记 |
-| 5 | `Pxx_curl_normal_01.csv` | 40 s | 记 |
-| 6 | `Pxx_curl_fast_01.csv` | 40 s | 记 |
-| 7 | `Pxx_other_mixed_01.csv` | 120 s | - |
-| 8 | `Pxx_partial_mixed_01.csv` | 60 s | 记完整次数 |
-
-录坏了（掉线、线被拉、做错动作）就删掉重录，编号 `_02`，不要保留坏文件。
-
-## 7. 文件名
-
-```
-P01_curl_slow_01.csv
-│   │    │    └ 第几次录（01 起）
-│   │    └ 变体：slow / normal / fast / stand / table / lap / mixed
-│   └ 录制标签：curl / idle / other / partial
-└ 参与者编号
-```
-
-全小写，下划线分隔，放 `data/sessions/`。训练脚本从文件名读标签和参与者，所以名字错了等于标签错了。
-
-## 8. 录制步骤
-
-1. 板子烧 `04_imu_stream`，接好 4517，插电脑。
-2. 终端确认在出数：
-
-   ```bash
-   stty -f /dev/cu.usbmodem* 115200 raw -echo; timeout 3 cat /dev/cu.usbmodem*
-   ```
-
-   看到每行 7 个数、每秒约 104 行即可。**不要用会切 DTR/RTS 的串口工具**，会把板子送进下载模式（见 `firmware/bringup/README.md`）。
-3. 参与者摆好起始姿势，录制者敲：
+1. Upload `04_imu_stream`, connect the 4517 and computer, and verify seven-column serial output at about 104 rows/s. Avoid DTR/RTS toggling; see the [bring-up notes](../firmware/bringup/README.md).
+2. Position the participant and record, replacing the port:
 
    ```bash
    python3 firmware/bringup/record_serial.py /dev/cu.usbmodemXXXX data/sessions/P01_curl_slow_01.csv 40
    ```
 
-4. 看到终端开始滚动后喊"开始"，参与者做动作到录制自动停止。录制者数次数。
-5. 每录完一个文件跑检查：
+3. Give the start cue when recording begins. Continue until automatic stop; the observer counts repetitions.
+4. Check each recording:
 
    ```bash
    python3 ml/train/check_recording.py data/sessions/P01_curl_slow_01.csv
    ```
 
-   通过标准：行数在 104 × 秒数 ±3% 内；相邻 `t_ms` 间隔没有超过 15 ms 的；`curl` 文件 `gx` 峰值明显大于另两列（安装方向对）。不通过就重录。
-6. 在 `data/sessions/sessions.csv` 加一行：文件名、参与者、录制标签、变体、真实次数、日期、录制者、备注。
-7. 当天提交到 `main`（录音文件 + sessions.csv 一起），commit 信息写 `data: add P01 session (8 files)`。
+   Require row count within ±3% of 104 × duration, no adjacent timestamp gap above 15 ms, and dominant `gx` peaks for curls under the proposed mounting. Inspect axis dominance as well as the script output. Repeat failed recordings.
+5. Add filename, participant, recording label, variant, true count, date, recorder and notes to `data/sessions/sessions.csv`.
+6. Submit approved anonymized recordings and metadata together on the same day through the team workflow. Example commit: `data: add P01 session (8 files)`. Do not force-add ignored raw data without authorization.
 
-## 9. 不进仓库的东西
+## 9. Excluded material
 
-视频、音频、姓名、编号对照表、任何没匿名化的笔记。这些要么不录，要么放 `data/private/`（被 .gitignore）。
+Do not commit video, audio, names, identity mappings or non-anonymous notes. Do not collect them unless needed; keep private material outside the public repository or in ignored `data/private/`.
 
-## 10. 数据量目标和进度
+## 10. Volume and progress
 
-| | 每人 | 6 人合计 | 要求 |
+| Category | Per participant | Six participants | Target |
 |---|---|---|---|
-| curl | 2 min | 12 min | ≥ 10 min |
-| idle | 1.5 min | 9 min | ≥ 10 min，不够就第 7 人补 idle |
-| other | 2 min | 12 min | ≥ 10 min |
-| partial | 1 min | 6 min | 计数线用，无下限 |
+| curl | 2 min | 12 min | >=10 min |
+| idle | 1.5 min | 9 min | >=10 min; add a seventh participant's idle data |
+| other | 2 min | 12 min | >=10 min |
+| partial | 1 min | 6 min | Counter checks; no minimum |
 
-进度直接看 `sessions.csv` 行数。
+Track progress in `sessions.csv`.
 
-## 11. 改这份协议
+## 11. Protocol changes
 
-改第 2、3、5、7 节任何一条，之前的录音都可能不兼容，要在本文件顶部加版本号和日期，并在 `sessions.csv` 的备注里写录音对应哪一版。
+Changes to equipment/settings, mounting, labels or naming may make earlier data incompatible. Update the version/date here and record each dataset's protocol version in metadata notes.

@@ -40,9 +40,9 @@ Record a dated decision, reason, supporting evidence and affected files when any
 - **Decision:** Movement classification (FR-03, FR-04, AT-01) and repetition counting with on-device integration (FR-02, FR-05, FR-06, AT-02, AT-03) are two separately owned lines, each with its own files, branch, issue and documentation. The only shared contract is the classifier output (`t_ms,label,conf`, one result per second over a 2 s window at 104 Hz), recorded as a draft in `ml/workplan.md` section 4 and to be confirmed in the week of 2026-11-04. Anonymised recordings are committed under `data/sessions/` (participant codes only); `data/raw/` and `data/private/` stay ignored for anything that cannot be anonymised.
 - **Reason:** Counting can be demonstrated without the classifier but not the other way round, so the counter must not wait for the model. Splitting by task rather than by pipeline stage lets each owner test against their own acceptance targets. One board exists, so recordings must be shared through the repository for the second owner to work offline.
 - **Inference approach (classification line, 2026-11-03):** hand features + logistic regression or small MLP, exported by `ml/train/export_c.py` to a C header and run by plain C++ in `firmware/classifier/`. TensorFlow Lite Micro stays the fallback if a window-based network becomes necessary.
-- **Owners:** classification Hanson He; counting and integration Julia Zhang. Other areas recorded the same day in `HANDOFF.md`: enclosure Eric Zhu, hardware Zoe Wang, computer logger Julia Zhang (issue #2). Heart-rate algorithm unassigned.
+- **Owners:** classification Hanson He; counting and integration Julia Zhang. Other areas recorded the same day in `docs/handoff.md`: enclosure Eric Zhu, hardware Zoe Wang, computer logger Julia Zhang (issue #2). Heart-rate algorithm unassigned.
 - **Open:** IMU mounting orientation (must be fixed before the first recording), and how `curl_partial` recordings are labelled for training.
-- **Affected files:** `ml/workplan.md` (new), `data/sessions/README.md` (new), `ml/README.md`, `HANDOFF.md`, `README.md`.
+- **Affected files:** `ml/workplan.md` (new), `data/sessions/README.md` (new), `ml/README.md`, `docs/handoff.md`, `README.md`.
 
 ### 2026-11-01: Power supply selected and purchased
 
@@ -50,18 +50,18 @@ Record a dated decision, reason, supporting evidence and affected files when any
 - **Reason:** A bank with a built-in flexible cable keeps mechanical load off the Nano's USB-C socket, unlike banks with a rigid male plug. Available next day. Capacity far exceeds the 30-minute runtime target.
 - **Not yet verified:** low-load auto shut-off behaviour, built-in cable length, and enclosure fit. Checks are listed in `docs/hardware.md`.
 - **Consequence:** total spend CAD 119.55, over the original ceiling. Budget ceiling to be re-agreed.
-- **Affected files:** `docs/hardware.md`, `docs/specification-zh.md`.
+- **Affected files:** `docs/hardware.md`, the former translated specification (removed after English consolidation).
 
 ### 2026-10-31 (evening): DigiKey order placed; 9-DoF board kept
 
 - **Decision:** The order (Salesorder 102617982) was placed with Adafruit 4517 (LSM6DSOX + LIS3MDL 9-DoF, CAD 29.63) instead of the recommended 4438, plus two 4209 cables (one spare) and the Nano ESP32. Shipping was FedEx International Priority at CAD 15.00, the only option shown at guest checkout. Total invoiced CAD 86.00. The team chose to keep 4517 rather than change the order; the magnetometer is unused in Version 1 and may be useful later.
 - **Reason:** Changing a submitted DigiKey order is usually not possible and a return would cost more in shipping and time than the CAD 12 difference.
 - **Consequence:** CAD 14 remains under the budget ceiling for power and enclosure. Recorded above as an open decision.
-- **Affected files:** `docs/hardware.md`, `docs/specification-zh.md`, `AGENTS.md`, `Hardware Datasheets/README.md`.
+- **Affected files:** `docs/hardware.md`, the former translated specification (removed after English consolidation), `AGENTS.md`, `Hardware Datasheets/README.md`.
 
 ### 2026-10-31: IMU changed from borrowed ADXL335 to purchased LSM6DSOX; controller confirmed
 
 - **Decision:** Buy Arduino Nano ESP32 with headers (DigiKey 1050-ABX00083-ND, CAD 28.66), Adafruit LSM6DSOX 6-DoF IMU (1528-4438-ND, CAD 17.75) and a STEMMA QT to male-header cable (1528-4209-ND, CAD 1.41). Borrow GY-MAX30102, OLED and buttons. ADXL335 becomes an optional backup only.
 - **Reason:** A bicep curl is mainly forearm rotation, so angular rate from a gyroscope gives a cleaner repetition signal than acceleration alone. The course loan list and the Grove Starter Kit Plus contain no gyroscope and no wireless controller, so these two items must be purchased. The 9-DoF version (4517, CAD 29.63) was rejected because the magnetometer does not help curl counting and costs CAD 12 more. R4 Minima plus an external Wi-Fi module was rejected because the R4 3.3 V pin is fed by the RA4M1 internal USB LDO (R4 Minima datasheet section 9.2) and cannot power a Wi-Fi module, its 5 V logic needs level shifting, and 32 kB SRAM is tight for ML plus Wi-Fi buffers.
 - **Evidence:** DigiKey Canada prices and stock on 2026-10-31; Grove Starter Kit Plus wiki parts list; Arduino UNO R4 Minima datasheet. No hardware has been received or tested.
-- **Affected files:** `docs/hardware.md`, `docs/specification.md`, `docs/specification-zh.md`, `README.md`, `AGENTS.md`, `docs/team-guide.md`. Not yet updated: the pitch deck and speaker script (delivered snapshots still name ADXL335), the PDF specification export, and the CAD accelerometer placeholder dimensions.
+- **Affected files:** `docs/hardware.md`, `docs/specification.md`, the former translated specification (removed after English consolidation), `README.md`, `AGENTS.md`, `docs/team-guide.md`. Not yet updated: the pitch deck and speaker script (delivered snapshots still name ADXL335), the PDF specification export, and the CAD accelerometer placeholder dimensions.

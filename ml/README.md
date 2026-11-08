@@ -1,6 +1,6 @@
 # Motion model
 
-Work split, interface contract, recording plan and timeline: `workplan.md` (Chinese, agreed 2026-11-03). Recording protocol: `data-protocol.md`. Owner of this folder: Hanson He (classification line).
+Work split, interface contract, recording plan and timeline: `workplan.md` (agreed 2026-11-03). Recording protocol: `data-protocol.md`. Owner of this folder: Hanson He (classification line).
 
 Status 2026-11-03: no real recordings yet. The training pipeline below runs end to end on synthetic data and its C++ port compiles for the Nano ESP32; every performance number so far is from synthetic data and means nothing about real motion.
 
