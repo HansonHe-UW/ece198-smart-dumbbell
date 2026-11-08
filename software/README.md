@@ -6,6 +6,24 @@ Open [web/index.html](web/index.html) from a local checkout in Microsoft Edge or
 
 Click **Connect dumbbell**, select **SmartDumbbell**, then use the physical button to control the session. The computer can stay on its regular Wi-Fi. Keep the page open while training and click **Export CSV** before closing it. The dashboard shows repetitions, active time and estimated BPM. A dash indicates an unavailable heart-rate sample.
 
+### BLE interface the dashboard expects
+
+No firmware in this repository implements this yet (`firmware/demo` serves the same fields over Wi-Fi at `/sample`; `firmware/app` v1 uses a Nordic UART service with JSON). Firmware that wants to drive the dashboard must provide:
+
+- GATT service `823ef401-1d82-41f6-b689-68aedcbb1960`, advertised so that Web Bluetooth can filter on it.
+- Characteristic `823ef402-1d82-41f6-b689-68aedcbb1960`, readable and notifying, one 16-byte little-endian sample about once per second:
+
+| Offset | Type | Field |
+|---|---|---|
+| 0 | u8 | packet version, must be 1 (other values are ignored) |
+| 1 | u8 | state: 0 Ready, 1 Running, 2 Paused, 3 Done |
+| 2 | u32 | session number, increments on each start |
+| 6 | u32 | active time in ms, pauses excluded |
+| 10 | u32 | repetitions in this session |
+| 14 | u16 | heart rate in bpm, 0 when no valid value (shown as a dash) |
+
+The HTTP logger below uses a different, richer record (`session_id`, `sequence`, `heart_rate_valid`, `signal_quality`, ...). One of the two is the interface of record; decide and map the fields before AT-08 testing.
+
 ## Python HTTP logger (simulation prototype)
 
 **Status: simulated only.** The HTTP endpoints `/status` (GET) and `/target` (POST) are provisional examples for Role ④ to confirm; no real Nano ESP32 integration has been tested.
