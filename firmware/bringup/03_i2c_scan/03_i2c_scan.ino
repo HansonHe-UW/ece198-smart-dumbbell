@@ -17,8 +17,10 @@ const char* nameFor(uint8_t a) {
 
 void setup() {
   Serial.begin(115200);
+  while (!Serial && millis() < 3000) {}   // HWCDC: give the host time to attach before the first print
   Wire.begin();            // A4/A5 on the Nano ESP32
   Wire.setClock(400000);
+  Wire.setTimeOut(20);     // ms per transaction; a stuck bus (no pull-ups, SDA held low) then scans in ~2 s instead of ~2 min
 }
 
 void loop() {
