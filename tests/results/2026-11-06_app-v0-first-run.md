@@ -1,35 +1,35 @@
-# app v0 首次上板：模块、采样时序、按钮
+# App v0 first hardware run: modules, sampling and button
 
-- 日期：2026-11-06
-- 硬件：Nano ESP32 + Adafruit 4517 + GY-MAX30102 + 套件 OLED（0x3C）在一条 3.3 V I2C 总线上；一个按钮 D2 → GND；LED D7。按 `firmware/app/README.md` 接线。
-- 固件：`firmware/app`，本次记录结束时的版本（分块刷屏 + 总线保持 400 kHz）。核心 arduino:esp32 2.0.18。
-- 模型：`model_weights.h`，合成数据训练，仅用于验证推理时间。
-- 方法：`arduino-cli upload` 后用 `cat` 读串口 20 s，看 `#` 头和 `S` 行；按钮只做短按/长按。
+- Date: 2026-11-06.
+- Hardware: Nano ESP32, Adafruit 4517, GY-MAX30102 and kit OLED (0x3C) on one 3.3 V I2C bus; one D2-to-GND button and D7 LED. See the [app wiring](../../firmware/app/README.md).
+- Firmware: `firmware/app` at the end of this session, with chunked display transfers and the bus held at 400 kHz; arduino:esp32 core 2.0.18.
+- Model: synthetic-data `model_weights.h`, used only to check inference timing.
+- Method: upload with arduino-cli, read serial with `cat` for 20 s, inspect startup and `S` rows, and try short/long button presses.
 
-## 结果
+## Results
 
-| 项 | 判据 | 实测 | 状态 |
+| Item | Criterion | Observation | Status |
 |---|---|---|---|
-| 启动头 | `oled 1 hr 1`，IMU 不报错 | `oled 1; hr 1` | 通过 |
-| IMU 速率 | `imu_hz` 103 ～ 105 | 104.0 | 通过 |
-| 不丢样 | `imu_late` 不涨 | 0（4 个 5 s 窗口） | 通过 |
-| 采样抖动 | `imu_dt_max_ms` 约 10 | 10 | 通过 |
-| 心率出数率 | `hr_n` 约 500 / 5 s（100 Hz） | 497 ～ 498 | 通过 |
-| 分类推理 | ≤ 50 ms（workplan 第 4 节提议值） | 2.26 ms | 通过 |
-| loop 最长 | < 9600 µs（含重画和分块发送） | 6224 ～ 6471 µs | 通过 |
-| 按钮 | 短按 start/pause/resume，长按 end | 串口出现对应 `EVENT` 行，长按 `end,reps=0,duration_s=5` | 通过 |
-| 弯举计数 | 一上一下加一 | 未做 | 未测 |
-| LED / 蜂鸣器 | 计数闪、到目标长亮 | 未看 | 未测 |
-| 手指心率 | `HR ...` → 数字，拿开 3 s 内 `HR --` | 未做（全程 IR 约 32000，无手指，`valid=0`） | 未测 |
-| 屏幕内容 | IDLE / 0 /10 / 提示行，无花屏 | 待肉眼确认 | 未测 |
+| Startup | `oled 1 hr 1`, no IMU error | `oled 1; hr 1` | Pass |
+| IMU rate | 103–105 Hz | 104.0 | Pass |
+| Late samples | No increase | 0 across four 5 s windows | Pass |
+| Maximum sample interval | About 10 ms | 10 ms | Pass |
+| Optical sample rate | About 500 / 5 s (100 Hz) | 497–498 | Pass |
+| Classifier inference | <=50 ms, proposed workplan budget | 2.26 ms | Pass |
+| Maximum loop | <9600 us including redraw and transfer | 6224–6471 us | Pass |
+| Button | Short start/pause/resume; long end | Matching events; long press emitted `end,reps=0,duration_s=5` | Pass |
+| Curl counting | One count per complete cycle | Not performed | Untested |
+| LED/buzzer | Count flash and target indication | Not observed | Untested |
+| Finger heart rate | Stabilize to a number; clear within 3 s of removal in draft procedure | Not performed; IR about 32000 without contact, `valid=0` | Untested |
+| Display appearance | IDLE, 0/10 and hints without corruption | Visual confirmation pending | Untested |
 
-## 过程中发现并修掉的两个问题
+## Issues found and fixed during that session
 
-1. **整帧刷屏阻塞 IMU。** v0 第一版用 `oled.display()`，一次推 1 KB。实测刷屏 250 ms 一次时 `imu_late` 每 5 s +57，`imu_dt_max` 33 ms；改成 1000 ms 一次 +15；不接屏 0。即每刷一次 IMU 迟 3 个周期并补读 3 个重复样本（约 11 % 样本重复）。改为每次 loop 发 64 字节、只在距下一次采样 ≥ 3 ms 时发，`imu_late` 归 0。
-2. **总线一直是 100 kHz。** `Adafruit_SSD1306` 默认 `clkAfter = 100000`，每次屏操作后把 `Wire` 时钟改回 100 kHz；`Wire.getClock()` 实测 100000，64 字节分块 6.0 ms（400 kHz 应为 1.5 ms）。构造时传 `clkDuring = clkAfter = 400000` 后 `imu_dt_max` 从 13 ms 回到 10 ms。07_oled_buttons 之后所有带屏的测试都受这个影响。
+1. Full-frame `oled.display()` blocked IMU sampling. At a 250 ms refresh interval, `imu_late` increased by 57 per 5 s and maximum interval reached 33 ms. At 1000 ms refresh, late samples increased by 15; with the display disconnected, zero. Each refresh caused about three late/repeated samples, approximately 11% duplicates. Sending 64 bytes per loop only when at least 3 ms remained before sampling reduced late samples to zero.
+2. The bus stayed at 100 kHz because SSD1306's default `clkAfter=100000` reset the Wire clock after display access. `Wire.getClock()` reported 100000; a 64-byte chunk took 6.0 ms rather than the expected 1.5 ms at 400 kHz. Setting `clkDuring=clkAfter=400000` reduced the maximum IMU interval from 13 to 10 ms. Earlier display-enabled tests from sketch 07 onward were affected by this clock behavior.
 
-## 限制
+## Limitations
 
-- 以上是软件时序检查，不是验收测试；不涉及 AT-01 ～ AT-10 的任何判据。
-- 分类标签来自合成数据模型，`idle 1.00` 只说明推理在跑，不说明识别对。
-- 过程中板子有一次 USB 不应答（DFU 枚举但不响应，串口无输出），拔插 USB 后恢复，同一固件再跑正常；原因未查明。
+These are preliminary timing and control checks, not completed AT-01–AT-10 acceptance tests. Synthetic-model output such as `idle 1.00` proves that inference executes, not that classification is accurate. The draft 3 s heart-rate procedure does not replace AT-06's 2 s requirement.
+
+The board once stopped responding over USB (DFU enumerated but did not respond; no serial output). Reconnecting USB restored operation with the same firmware. The cause remains unresolved.

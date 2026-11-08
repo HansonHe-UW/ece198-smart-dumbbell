@@ -1,119 +1,85 @@
-# 动作识别与计数：两人分工计划
+# Motion classification and repetition counting workplan
 
-定稿日期：2026-11-03。组内已同意按下面两条线分工：动作分类 Hanson He，计数与板上集成 Julia Zhang。两位各开一个 issue。改这份文件要走 PR，两位负责人都看过再合并。
+Agreed 2026-11-03: Hanson He owns classification; Julia Zhang owns counting and on-board integration. Each owner creates an issue. Changes to this shared plan use a PR reviewed by both owners.
 
-## 1. 分法
+## 1. Work split
 
-把"机器学习"拆成两件独立的事：
-
-| | 线 1：动作分类 | 线 2：计数与板上集成 |
+| | Classification | Counting and integration |
 |---|---|---|
-| 一句话 | 让板子知道"这两秒是不是在做弯举" | 在"是弯举"的前提下，把一上一下数成一次 |
-| 对应需求 | FR-03、FR-04 | FR-02、FR-05、FR-06 |
-| 对应验收 | AT-01 | AT-02、AT-03 |
-| 负责人 | Hanson He | Julia Zhang |
-| 分支 | `ml/classifier` | `firmware/rep-counter` |
-| 自己的文件 | `ml/` 下除本文件外的全部；`data/sessions/README.md` | `firmware/counter/` 全部；`tests/results/` 里 AT-02、AT-03 的记录 |
+| Goal | Identify curl motion in a two-second window | Count one complete up/down cycle within curl motion |
+| Requirements | FR-03, FR-04 | FR-02, FR-05, FR-06 |
+| Acceptance | AT-01 | AT-02, AT-03 |
+| Owner | Hanson He | Julia Zhang |
+| Branch | `ml/classifier` | `firmware/rep-counter` |
+| Main files | `ml/` except this shared plan and counter tools; `data/sessions/README.md` | `firmware/counter/`, counter tools, AT-02/03 records |
 
-两条线中间只有一个接口（第 4 节）。接口定了以后各写各的文件，不互相改。规格 `docs/specification*.md` 和本文件是公共文件，改动走 PR。
+Use the interface below and coordinate before editing each other's work. The specification and this plan are shared. Counting can be developed and demonstrated independently, so it should not wait for a trained model.
 
-分类线训不出模型，计数线单独也能演示；反过来不行。所以计数线不等模型，第二周就用录好的数据离线跑。
+## 2. Classification workstream
 
-## 2. 线 1：动作分类
+1. Define mounting, participant actions/durations, label boundaries and naming in `ml/data-protocol.md`.
+2. Implement CSV loading, two-second windows, features, training and evaluation. Start with axis statistics, gyro zero-crossings and logistic regression or a small MLP. Do not enlarge a model that already meets AT-01 without a reason.
+3. Split by participant: test participants must be absent from training. Report confusion matrix and macro-F1; randomly splitting overlapping windows is not valid independent evaluation.
+4. Export weights through `ml/train/export_c.py`; use pure C++ features/inference in `firmware/classifier/classifier.h`. TensorFlow Lite Micro is a fallback; its hello-world example compiled for `nano_nora`. Measure inference time, Flash and RAM on hardware.
+5. Supply the agreed function/serial interface.
 
-**做什么**
+Deliver `ml/data-protocol.md`, runnable training/evaluation scripts and requirements, a planned `ml/model-card.md` with dataset composition, split, metrics, size and timing, the deployed classifier, and AT-01 evidence in `tests/results/`. Counting logic, buttons, OLED and Wi-Fi are outside this workstream.
 
-1. 定录数据协议并写进 `ml/data-protocol.md`：传感器在哑铃上的安装方向、每个人录哪些动作录多久、三类标签的边界、文件命名。第 5 节是起点。
-2. 写训练流程：读 `data/sessions/` 的 CSV → 切 2 s 窗 → 算特征 → 训练 → 评估。先用手工特征（每轴均值、标准差、最大最小、陀螺仪过零次数等）加逻辑回归或很小的 MLP。能过 AT-01 就不要换更大的模型。
-3. 评估必须按人划分：测试集里的人不能出现在训练集。报告混淆矩阵和 macro-F1。随机切窗口得到的成绩不算。
-4. 导出模型到板子。现方案是 `ml/train/export_c.py` 生成权重头文件，`firmware/classifier/classifier.h` 用纯 C++ 做特征和推理（TensorFlow Lite Micro 作备选，`Chirale_TensorFlowLite` 的 hello_world 已在 `nano_nora` 上编译通过）。实测一次推理用多少毫秒、模型占多少 Flash 和 RAM。
-5. 按第 4 节的格式给计数线一个函数或串口输出。
+## 3. Counting and integration workstream
 
-**交付物**
+1. Tune offline using recorded CSVs. Integrate the primary gyro axis to angle or use angular-rate hysteresis/zero crossings. Count one complete lift and return; prototype in Python before C++.
+2. Reject half-movements, double counts from shaking, paused movement and pickup/put-down events.
+3. Gate increments on the latest `curl` label. Until classification is ready, explicitly label any always-curl assumption in test records.
+4. Implement start/pause/resume/end states and integrate with the bring-up mock UI.
+5. Run the twenty AT-02 sets and twenty AT-03 interference trials offline, then repeat on hardware.
 
-- `ml/data-protocol.md`：录数据的规矩。
-- `ml/train/`：能一条命令跑完的训练与评估脚本，`requirements.txt`。
-- `ml/model-card.md`：训练集几个人几分钟、测试集是谁、混淆矩阵、macro-F1、模型大小、板上推理时间。
-- `firmware/classifier/`：模型文件和推理封装，输出符合第 4 节。
-- `tests/results/` 里 AT-01 的记录。
+Deliver the planned `firmware/counter/` implementation and parameter rationale, `ml/tools/offline_counter.py` or equivalent owned by this workstream, and separate offline/hardware AT-02/03 records. Training, heart rate and the computer application are separate work.
 
-**不负责**：计数逻辑、按钮和屏幕、Wi-Fi。
+## 4. Draft interface v0
 
-## 3. 线 2：计数与板上集成
+Confirm together during the first week before marking this interface agreed.
 
-**做什么**
-
-1. 用录好的 CSV 在电脑上先做计数器：对主转动轴的角速度积分得角度，或直接对角速度做带滞回的过零检测；一个完整的"举起再放下"算一次。先用 Python 调参，调好再搬到 C++。
-2. 处理规格点名的情况：做一半停住不算；来回晃不能算两次；暂停状态下不算；拿起、放下不算。
-3. 加门控：只有分类线最近一次输出是 `curl` 时才允许加一。分类线没好之前，用"全程当作 curl"先跑，并在记录里写明。
-4. 开始 / 暂停继续 / 结束的状态机（FR-02），和 `07_oled_buttons` 的 mock UI 接起来。
-5. 离线跑 AT-02 的 20 组和 AT-03 的 20 次干扰，再上板子复测。
-
-**交付物**
-
-- `firmware/counter/`：计数器和状态机的 C++ 实现，`README.md` 写算法、参数、参数怎么定的。
-- `ml/tools/offline_counter.py` 或同等脚本：对 CSV 离线数次数，和真实次数比对。放 `ml/tools/` 是因为它读的是同一批数据；文件归线 2。
-- `tests/results/` 里 AT-02、AT-03 的记录，离线结果和上板结果分开写。
-
-**不负责**：模型训练、心率、上位机。
-
-## 4. 接口约定 v0（草案，第一周两人确认后改成"已定"）
-
-**数据格式（录制与离线用）**：和 `firmware/bringup/04_imu_stream` 的输出一致，不改。
-
-```
+```text
 t_ms,ax,ay,az,gx,gy,gz
 ```
 
-104 Hz；加速度 m/s²（±4 g 量程）；角速度 deg/s（±500 dps 量程）；`t_ms` 为板子上电起的毫秒。坐标系按 4517 丝印，已在 `tests/results/2026-11-03_bringup-04-imu-stream.md` 核对。
+Match `04_imu_stream`: 104 Hz, acceleration m/s² at ±4 g range, angular rate deg/s at ±500 dps, and milliseconds since board startup. Axes follow the markings checked in the 2026-11-03 IMU record. Windows contain 208 samples (2 s), with output every 104 samples (1 s; 50% overlap).
 
-**窗口**：2 s（208 个样本），每 1 s 出一次结果（50% 重叠）。
-
-**分类线对外输出**，每秒一条：
-
-| 字段 | 取值 | 说明 |
+| Output | Values | Meaning |
 |---|---|---|
-| `t_ms` | 整数 | 窗口最后一个样本的时间 |
-| `label` | `curl` / `idle` / `other` | 三类之一 |
-| `conf` | 0.00–1.00 | 该标签的置信度 |
+| `t_ms` | Integer | Last sample timestamp |
+| `label` | `curl`, `idle`, `other` | Predicted class |
+| `conf` | 0–1 | Confidence in that class |
 
-板上以 C++ 函数提供（`firmware/classifier/classifier.h`：`clf_features()` + `clf_infer()` 返回 label 和 probs），串口同时打印一行 `C,<t_ms>,<label>,<conf>,<inference_us>`；电脑上离线调试时以同字段的 CSV 提供。
+On hardware use `clf_features()` and `clf_infer()` from `classifier.h` for labels/probabilities; serial output is `C,<t_ms>,<label>,<conf>,<inference_us>`. Offline output uses matching CSV fields.
 
-**计数线只认 `label`**：最近一条为 `curl` 时允许计数，否则冻结计数器但继续跟踪角度，避免切回 `curl` 时漏掉半个动作。`conf` 第一版不用，留给以后加阈值。
+The counter initially uses only `label`: allow increments for `curl`; otherwise freeze increments while continuing angle tracking so re-entry does not lose a partial movement. Confidence thresholds are reserved for later work.
 
-**预算**：一次推理在板上 ≤ 50 ms（提议，未测）。采样和计数不能因为推理丢样本，`06_imu_hr_combined` 的 `S,` 统计行可用来验证。
+Proposed inference budget: <=50 ms on hardware. Sampling and counting must not lose samples due to inference; use timing statistics similar to `06_imu_hr_combined`. This plan's budget is a target, not an acceptance result.
 
-## 5. 录数据（两人共同）
+## 5. Shared recording
 
-板子只有一块。谁录都要把匿名化的 CSV 提交到 `data/sessions/`，另一个人才有东西用。
+Coordinate use of the single board. Share only approved anonymous CSVs and metadata in `data/sessions/`. Freeze and photograph mounting before the first participant; document any later change as a new protocol version.
 
-**安装方向**：录第一个人之前先定死 IMU 在哑铃上的朝向并拍照存进 `ml/data-protocol.md`。后面不能换，换了前面的数据作废。这是目前最先要拍板的事。
-
-**每人录**（起步量，分类线可在协议里调）：
-
-| 标签 | 内容 | 时长 |
+| Label | Content | Duration per participant |
 |---|---|---|
-| `curl` | 连续弯举，分慢、正常、快三段 | 3 × 40 s |
-| `idle` | 握着不动、放在桌上、站着持铃 | 3 × 30 s |
-| `other` | 拿起放下、提着走、侧平举、前平举、随意晃 | 共 2 min |
-| `curl_partial` | 只举一半、中途停住、断断续续 | 1 min |
+| `curl` | Slow, normal, fast complete curls | 3 × 40 s |
+| `idle` | Held still, on table, standing hold | 3 × 30 s |
+| `other` | Pickup/put-down, walking, lateral/front raises, shaking | 2 min total |
+| `curl_partial` | Half movements, holds, interrupted movement | 1 min |
 
-`curl_partial` 给计数线做 AT-02 用；分类线第一版把它归入哪一类由分类线在协议里写明。
+The protocol specifies how partial curls map to training classes; the counter uses them for AT-02. Record one file per segment, such as `P01_curl_slow_01.csv`, with `record_serial.py`. Keep identity mappings outside the repository. Target >=6 participants and >=10 min per main class, supplementing idle data as needed. Each owner records assignments/dates in their issue and submits approved recordings the same day.
 
-每段单独一个文件，文件名 `P01_curl_slow_01.csv`，用 `firmware/bringup/record_serial.py` 录。参与者只用编号，编号对姓名的表不进仓库（见 `data/README.md`）。目标 ≥ 6 人；每类合计 ≥ 10 min。
+## 6. Original schedule
 
-**排班**：两位负责人在各自 issue 里写清自己录哪几个人、哪天录。录完同一天提交。
-
-## 6. 时间表
-
-| 周 | 分类线 | 计数线 | 共同 |
+| Dates, 2026 | Classification | Counting | Shared |
 |---|---|---|---|
-| 11-04 ～ 11-10 | `data-protocol.md` v0.1 和训练流程已于 11-03 入库；本周确认第 4 节接口、填安装方向 | 搭离线计数脚本，用 bring-up 已录的样本先跑通 | 定 IMU 安装方向；录前 2 ～ 3 人 |
-| 11-11 ～ 11-17 | 第一版模型，按人划分评估；板上推理时间 | 离线跑 AT-02、AT-03 全部 40 组；参数定稿；开始 C++ | 录满 6 人 |
-| 11-18 ～ 11-24 | 模型上板，输出接口；AT-01 记录 | 门控接入；状态机与按钮屏幕；上板复测 AT-02、AT-03 | 10 分钟连续运行（AT-07 的动作部分） |
+| Nov 4–10 | Confirm interface and mounting; protocol/pipeline entered Nov 3 | Build offline counter using available bring-up samples | Freeze mounting; record 2–3 participants |
+| Nov 11–17 | First model, participant-held-out evaluation and board timing | All forty AT-02/03 offline trials; freeze parameters; start C++ | Reach six participants |
+| Nov 18–24 | Deploy model/interface; AT-01 evidence | Add gate, state machine, UI; repeat AT-02/03 on board | Ten-minute continuous motion-system run |
 
-11-25 演示。11-24 之后不改模型和参数。
+The recorded plan targets a Nov 25 demonstration and freezes model/parameters after Nov 24. The handoff notes that the demonstration date was reported verbally and still needs course confirmation.
 
-## 7. 不在这两条线里
+## 7. Other workstreams
 
-上位机记录（issue #2，Julia Zhang）、硬件：电子、电源、接线、心率模块（Zoe Wang）、外壳 CAD 与打印（Eric Zhu）。心率算法（FR-07、FR-08）目前没有负责人，由硬件线先做可行性测试。
+Computer logging: Julia Zhang. Electronics, power, wiring and heart-rate module: Zoe Wang. Enclosure CAD/printing: Eric Zhu. The heart-rate algorithm (FR-07/08) was unassigned when this plan was written; hardware feasibility testing comes first. Historical issue numbers from the previous repository are not assumed to identify tasks in this repository.
