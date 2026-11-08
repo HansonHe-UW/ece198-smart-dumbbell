@@ -12,6 +12,8 @@ A proposed lightweight smart dumbbell for CCCARE participants who can independen
 
 ## Start here
 
+- [Bluetooth training dashboard](software/web/) and [connection instructions](software/README.md#bluetooth-dashboard)
+
 - **[Team repository guide / 团队使用说明](docs/team-guide.md)**
 - [Handoff brief for teammates and their AI assistants](HANDOFF.md)
 - [Working specification](docs/specification.md) and [Chinese version](docs/specification-zh.md)
@@ -58,7 +60,7 @@ Counting, sensing, and the display are intended to continue when the computer di
 | `hardware/` | Native CAD, model generator, rendering, assumptions, and the wiring draft |
 | `presentation/` | Current pitch and matching narration |
 | `firmware/` | Planned Nano ESP32 implementation; no code yet |
-| `software/` | Planned computer interface and logging; no code yet |
+| `software/` | Bluetooth dashboard and simulated HTTP logger |
 | `ml/` | Work plan for classification and counting (`ml/workplan.md`); no model yet |
 | `tests/` | Acceptance-test tracking; no measured results yet |
 | `data/` | Data-handling guidance; no participant recordings |

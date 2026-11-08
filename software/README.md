@@ -1,4 +1,12 @@
-# Computer interface and logging — simulation prototype
+# Computer interface and logging
+
+## Bluetooth dashboard
+
+Open [web/index.html](web/index.html) from a local checkout in Microsoft Edge or Google Chrome on Windows. Power the Nano ESP32 via USB-C from the power bank. Use the wireless firmware that advertises the SmartDumbbell BLE service (823ef401-1d82-41f6-b689-68aedcbb1960).
+
+Click **Connect dumbbell**, select **SmartDumbbell**, then use the physical button to control the session. The computer can stay on its regular Wi-Fi. Keep the page open while training and click **Export CSV** before closing it. The dashboard shows repetitions, active time and estimated BPM. A dash indicates an unavailable heart-rate sample.
+
+## Python HTTP logger (simulation prototype)
 
 **Status: simulated only.** The HTTP endpoints `/status` (GET) and `/target` (POST) are provisional examples for Role ④ to confirm; no real Nano ESP32 integration has been tested.
 

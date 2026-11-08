@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SmartDumbbell | Session Monitor</title>
+<style>
+:root{color-scheme:dark;--ink:#ecf2ec;--muted:#a2b5ac;--line:#354942;--lime:#c7ff8e}*{box-sizing:border-box}body{margin:0;background:#101a17;color:var(--ink);font:16px/1.5 "Segoe UI",sans-serif}main,header{max-width:1120px;margin:auto;padding:0 clamp(20px,5vw,64px)}header{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}header strong{font-size:20px;letter-spacing:-.7px}header b{color:var(--lime)}.badge{font-size:13px;color:var(--muted)}.badge:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#83958c;margin-right:8px}.online:before{background:var(--lime)}.top{display:flex;align-items:end;justify-content:space-between;gap:22px;flex-wrap:wrap;margin:clamp(36px,7vw,72px) 0 28px}.over,label{font-family:Consolas,monospace;font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}h1{font-size:clamp(38px,6vw,72px);line-height:1.05;letter-spacing:-.06em;margin:9px 0 0;font-weight:600}button{font:600 14px "Segoe UI",sans-serif;border:1px solid var(--line);background:transparent;color:var(--ink);padding:13px 20px;border-radius:7px;cursor:pointer}button:disabled{opacity:.45;cursor:default}button:focus-visible{outline:3px solid white;outline-offset:3px}#connect{background:var(--lime);border-color:var(--lime);color:#152519}.cards{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px}.card,.panel{padding:clamp(18px,3vw,32px);background:#192823;border:1px solid var(--line);border-radius:14px}.card:first-child{background:#24382b}.value{font-size:clamp(38px,6vw,72px);font-weight:550;letter-spacing:-.06em;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:16px}.unit{font-size:14px;color:var(--muted);letter-spacing:0}.panel{margin-top:16px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}h2{margin:0;font-size:21px;font-weight:550}.chart{height:130px;margin-top:18px;position:relative;background:repeating-linear-gradient(to top,var(--line) 0 1px,transparent 1px 32px)}svg{width:100%;height:100%}#hint{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px}footer{margin:20px 0 44px;display:flex;gap:18px;align-items:center;justify-content:space-between}#message{color:var(--muted);font-size:14px}@media(max-width:620px){.cards{grid-template-columns:1fr 1fr}.card:first-child{grid-column:span 2}.badge{font-size:12px}footer{align-items:start}.unit{display:block}}
+</style>
+<header><strong>Smart<b>Dumbbell</b></strong><span id="link" class="badge" role="status">Disconnected</span></header>
+<main><section class="top"><div><div class="over" id="session">Training session</div><h1>Session monitor</h1></div><button id="connect">Connect dumbbell</button></section>
+<section class="cards" aria-label="Live measurements"><article class="card"><div class="over">Heart rate</div><div class="value"><span id="hr">—</span> <span class="unit">BPM</span></div></article><article class="card"><div class="over">Repetitions</div><div class="value" id="reps">—</div></article><article class="card"><div class="over">Active time</div><div class="value" id="timer">—</div></article></section>
+<section class="panel"><div class="row"><h2>Heart rate trend</h2><span class="badge">Last 60 s</span></div><div class="chart"><svg viewBox="0 0 600 130" preserveAspectRatio="none" aria-label="Recent estimated heart rate"><path id="trace" fill="none" stroke="#c7ff8e" stroke-width="2.5" vector-effect="non-scaling-stroke" stroke-linecap="round"/></svg><div id="hint">Waiting for heart rate data</div></div></section>
+<footer><div id="message" role="status">Power on your dumbbell, then connect via Bluetooth.</div><button id="save" disabled>Export CSV</button></footer></main>
+<script>
+const service="823ef401-1d82-41f6-b689-68aedcbb1960",sample="823ef402-1d82-41f6-b689-68aedcbb1960";
+const el=id=>document.getElementById(id), button=el("connect");
+const rows=["session,state,active_ms,reps,bpm"], states=["Ready","Running","Paused","Done"];
+let device,history=[],lastSession;
+function plot(now){
+ history=history.filter(p=>now-p.t<=60000);
+ const valid=history.filter(p=>p.bpm>0);
+ el("hint").textContent=valid.length?"":"Waiting for heart rate data";
+ const low=Math.min(...valid.map(p=>p.bpm),70)-5,high=Math.max(...valid.map(p=>p.bpm),90)+5;
+ let path="",move=true;
+ for(const p of history){if(!p.bpm){move=true;continue}
+ const x=600-(now-p.t)/100,y=122-114*(p.bpm-low)/(high-low);
+ path+=(move?"M":"L")+x.toFixed(1)+" "+y.toFixed(1)+" ";move=false;}
+ el("trace").setAttribute("d",path);
+}
+function render(v){
+ if(v.byteLength!==16||v.getUint8(0)!==1)return;
+ const state=states[v.getUint8(1)],n=v.getUint32(2,true),ms=v.getUint32(6,true),reps=v.getUint32(10,true),hr=v.getUint16(14,true);
+ if(n!==lastSession){history=[];lastSession=n}
+ el("session").textContent=(n?"Session "+n:"Training session")+" / "+state;
+ el("hr").textContent=hr||"—";el("reps").textContent=reps;
+ const sec=Math.floor(ms/1000);el("timer").textContent=Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");
+ const now=Date.now();history.push({t:now,bpm:hr});plot(now);
+ const row=[n,state,ms,reps,hr||""].join(",");if(rows.at(-1)!==row)rows.push(row);
+ el("save").disabled=false;
+}
+function offline(){
+ device=null;history=[];plot(Date.now());el("session").textContent="Training session";
+ for(const id of ["hr","timer","reps"])el(id).textContent="—";
+ el("link").textContent="Disconnected";el("link").className="badge";
+ button.textContent="Connect dumbbell";button.disabled=false;
+ el("message").textContent="Disconnected. Connect again to resume receiving data.";
+}
+button.onclick=async()=>{
+ if(device?.gatt.connected){device.gatt.disconnect();return}
+ button.disabled=true;
+ try{
+ if(!navigator.bluetooth)throw Error("Open this file in Microsoft Edge or Google Chrome on Windows.");
+ device=await navigator.bluetooth.requestDevice({filters:[{services:[service]}]});
+ device.addEventListener("gattserverdisconnected",offline,{once:true});
+ const server=await device.gatt.connect(),svc=await server.getPrimaryService(service),c=await svc.getCharacteristic(sample);
+ c.addEventListener("characteristicvaluechanged",e=>render(e.target.value));
+ await c.startNotifications();render(await c.readValue());
+ el("link").textContent="Bluetooth connected";el("link").className="badge online";
+ el("message").textContent="Use the button on the dumbbell to control your session.";
+ button.textContent="Disconnect";
+ }catch(e){device?.gatt.disconnect();offline();el("message").textContent=e.name==="NotFoundError"?"No device selected. Power on the dumbbell and try again.":e.message}
+ finally{button.disabled=false}
+};
+el("save").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([rows.join("\n")],{type:"text/csv"}));a.download="smartdumbbell-session.csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+</script></html>
